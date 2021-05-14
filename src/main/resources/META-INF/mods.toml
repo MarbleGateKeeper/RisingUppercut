@@ -10,7 +10,7 @@ loaderVersion="[36,)" #mandatory This is typically bumped every Minecraft versio
 license="BSD 3-Clause License"
 #issueTrackerURL="https://change.me.to.your.issue.tracker.example.invalid/" #optional
 [[mods]] #mandatory
-modId="risinguppercut" #mandatory
+modId="rising_uppercut" #mandatory
 version="${file.jarVersion}" #mandatory
 displayName="Rising Uppercut" #mandatory
 # A URL to query for updates for this mod. See the JSON update specification https://mcforge.readthedocs.io/en/latest/gettingstarted/autoupdate/
