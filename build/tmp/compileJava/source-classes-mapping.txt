@@ -1,2 +1,0 @@
-love/marblegate/risinguppercut/RisingUppercut.java
- love.marblegate.risinguppercut.RisingUppercut
