@@ -4,6 +4,7 @@ import love.marblegate.risinguppercut.capability.rocketpunch.IRocketPunchIndicat
 import love.marblegate.risinguppercut.capability.rocketpunch.RocketPunchIndicator;
 import love.marblegate.risinguppercut.network.Networking;
 import love.marblegate.risinguppercut.network.PacketRocketPunch;
+import love.marblegate.risinguppercut.util.RotationUtil;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -28,11 +29,12 @@ public class Gauntlet extends Item {
 
     public void onPlayerStoppedUsing(ItemStack stack, World worldIn, LivingEntity entityLiving, int timeLeft){
         LazyOptional<IRocketPunchIndicator> rkp_cap = entityLiving.getCapability(RocketPunchIndicator.ROCKET_PUNCH_INDICATOR);
-        System.out.println("Time activated: "+(this.getUseDuration(stack)-timeLeft));
-        final int captimer = Math.min((this.getUseDuration(stack) - timeLeft), 40);
+        final int capTimer = Math.min((this.getUseDuration(stack) - timeLeft), 40);
         rkp_cap.ifPresent(
                 cap-> {
-                    cap.set(captimer);
+                    cap.setTimer(capTimer);
+                    cap.setStrength(capTimer);
+                    cap.setDirection(RotationUtil.getHorizentalLookVecX(entityLiving),RotationUtil.getHorizentalLookVecZ(entityLiving));
                 }
         );
         if (!worldIn.isRemote) {
@@ -40,13 +42,8 @@ public class Gauntlet extends Item {
                     PacketDistributor.PLAYER.with(
                             () -> (ServerPlayerEntity) entityLiving
                     ),
-                    new PacketRocketPunch(captimer));
+                    new PacketRocketPunch(capTimer,capTimer,RotationUtil.getHorizentalLookVecX(entityLiving),RotationUtil.getHorizentalLookVecZ(entityLiving)));
         }
-        rkp_cap.ifPresent(
-                cap-> {
-                    System.out.println("Cap: "+cap.get());
-                }
-        );
     }
 
     public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {

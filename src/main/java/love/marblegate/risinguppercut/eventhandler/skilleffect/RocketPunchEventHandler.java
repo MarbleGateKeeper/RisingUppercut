@@ -4,9 +4,9 @@ import love.marblegate.risinguppercut.capability.rocketpunch.IRocketPunchIndicat
 import love.marblegate.risinguppercut.capability.rocketpunch.RocketPunchIndicator;
 import love.marblegate.risinguppercut.network.Networking;
 import love.marblegate.risinguppercut.network.PacketRocketPunch;
-import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -22,15 +22,16 @@ public class RocketPunchEventHandler {
     public static void goStraightForward(TickEvent.PlayerTickEvent event){
         if(event.phase == TickEvent.Phase.START){
             LazyOptional<IRocketPunchIndicator> rkp_cap = event.player.getCapability(RocketPunchIndicator.ROCKET_PUNCH_INDICATOR);
+            AxisAlignedBB collideBox = event.player.getBoundingBox().grow(0.25f,0,0.25f);
             List<LivingEntity> checks = event.player.world
-                    .getEntitiesWithinAABB(LivingEntity.class,event.player.getBoundingBox());
+                    .getEntitiesWithinAABB(LivingEntity.class,collideBox);
             if(checks.contains(event.player)) checks.remove(event.player);
             if (!checks.isEmpty()) {
                 rkp_cap.ifPresent(
                         cap-> {
-                            if(cap.get()>0){
+                            if(cap.getTimer()>0){
                                 for(LivingEntity target: checks){
-                                    target.applyKnockback((40-cap.get())*0.8f,-event.player.getLookVec().getX(),-event.player.getLookVec().getZ());
+                                    target.applyKnockback(cap.getStrength()*0.75f,-cap.getDirectionX(),-cap.getDirectionZ());
                                 }
                                 event.player.setMotion(0,0,0);
                                 event.player.markPositionDirty();
@@ -43,7 +44,7 @@ public class RocketPunchEventHandler {
             if(event.player.collidedHorizontally){
                 rkp_cap.ifPresent(
                         cap-> {
-                            if(cap.get()>0){
+                            if(cap.getTimer()>0){
                                 event.player.setMotion(0,0,0);
                                 event.player.markPositionDirty();
                                 event.player.velocityChanged = true;
@@ -54,8 +55,8 @@ public class RocketPunchEventHandler {
             }
             rkp_cap.ifPresent(
                     cap-> {
-                        if(cap.get()>0){
-                            event.player.setMotion(event.player.getLookVec().getX()*2f,0,event.player.getLookVec().getZ()*2f);
+                        if(cap.getTimer()>0){
+                            event.player.setMotion(cap.getDirectionX()*2f,0,cap.getDirectionZ()*2f);
                             event.player.markPositionDirty();
                             event.player.velocityChanged = true;
                             cap.decrease();
@@ -64,7 +65,7 @@ public class RocketPunchEventHandler {
                                         PacketDistributor.PLAYER.with(
                                                 () -> (ServerPlayerEntity) event.player
                                         ),
-                                        new PacketRocketPunch(cap.get()));
+                                        new PacketRocketPunch(cap.getTimer(),cap.getStrength(),cap.getDirectionX(),cap.getDirectionZ()));
                             }
                         }
                     }

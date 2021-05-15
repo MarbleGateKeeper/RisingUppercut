@@ -1,13 +1,21 @@
 package love.marblegate.risinguppercut.capability.rocketpunch;
 
 public interface IRocketPunchIndicator {
-    void set(int i);
+    void setTimer(int timer);
 
-    int get();
+    int getTimer();
+
+    int getStrength();
+
+    void setStrength(int strength);
+
+    void setDirection(double dX, double dZ);
+
+    double getDirectionX();
+
+    double getDirectionZ();
 
     void decrease();
-
-    void increase();
 
     void clear();
 }
