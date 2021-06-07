@@ -2,8 +2,8 @@ package love.marblegate.risinguppercut.render;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
-import love.marblegate.risinguppercut.capability.rocketpunch.IRocketPunchIndicator;
-import love.marblegate.risinguppercut.capability.rocketpunch.RocketPunchIndicator;
+import love.marblegate.risinguppercut.capability.rocketpunch.playerskillrecord.IRocketPunchPlayerSkillRecord;
+import love.marblegate.risinguppercut.capability.rocketpunch.playerskillrecord.RocketPunchPlayerSkillRecord;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.renderer.entity.model.PlayerModel;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -15,11 +15,13 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
+//需要大量改写
 @Mod.EventBusSubscriber(Dist.CLIENT)
 public class RocketPunchPoseRenderer {
     @SubscribeEvent
     public static void holdGunPost(RenderPlayerEvent.Post event) {
-        LazyOptional<IRocketPunchIndicator> rkp_cap = event.getPlayer().getCapability(RocketPunchIndicator.ROCKET_PUNCH_INDICATOR);
+        /*
+        LazyOptional<IRocketPunchPlayerSkillRecord> rkp_cap = event.getPlayer().getCapability(RocketPunchPlayerSkillRecord.ROCKET_PUNCH_SKILL_RECORD);
         rkp_cap.ifPresent(
                 cap -> {
                     if (cap.getTimer() > 0) {
@@ -28,6 +30,7 @@ public class RocketPunchPoseRenderer {
                         renderArmModel(model, player, event);
                     }
                 });
+                */
     }
 
     private static void renderArmModel(PlayerModel<AbstractClientPlayerEntity> model, PlayerEntity player, RenderPlayerEvent event)

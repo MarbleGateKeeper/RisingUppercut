@@ -1,12 +1,12 @@
-package love.marblegate.risinguppercut.capability.rocketpunch;
+package love.marblegate.risinguppercut.capability.rocketpunch.playerskillrecord;
 
-public class RocketPunchIndicatorStandardImpl implements IRocketPunchIndicator {
+public class RocketPunchPlayerSkillRecordStandardImpl implements IRocketPunchPlayerSkillRecord {
     private int timer;
     private double dX;
     private double dZ;
     private int strength;
 
-    public RocketPunchIndicatorStandardImpl(){
+    public RocketPunchPlayerSkillRecordStandardImpl(){
         this.timer = 0;
         this.dX = 0;
         this.dZ = 0;
@@ -17,7 +17,6 @@ public class RocketPunchIndicatorStandardImpl implements IRocketPunchIndicator {
     @Override
     public void setTimer(int timer) {
         this.timer = timer;
-        this.strength = strength;
     }
 
     @Override

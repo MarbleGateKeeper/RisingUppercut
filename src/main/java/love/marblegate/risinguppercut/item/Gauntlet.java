@@ -1,7 +1,7 @@
 package love.marblegate.risinguppercut.item;
 
-import love.marblegate.risinguppercut.capability.rocketpunch.IRocketPunchIndicator;
-import love.marblegate.risinguppercut.capability.rocketpunch.RocketPunchIndicator;
+import love.marblegate.risinguppercut.capability.rocketpunch.playerskillrecord.IRocketPunchPlayerSkillRecord;
+import love.marblegate.risinguppercut.capability.rocketpunch.playerskillrecord.RocketPunchPlayerSkillRecord;
 import love.marblegate.risinguppercut.network.Networking;
 import love.marblegate.risinguppercut.network.PacketRocketPunch;
 import love.marblegate.risinguppercut.util.RotationUtil;
@@ -20,6 +20,10 @@ import net.minecraftforge.fml.network.PacketDistributor;
 
 public class Gauntlet extends Item {
 
+    public static class SkillConstants{
+        public static int ROCKET_PUNCH_MAX_STRENGTH = 26;
+    }
+
     public Gauntlet() {
         super(new Properties()
                 .group(ItemGroup.COMBAT)
@@ -28,8 +32,8 @@ public class Gauntlet extends Item {
     }
 
     public void onPlayerStoppedUsing(ItemStack stack, World worldIn, LivingEntity entityLiving, int timeLeft){
-        LazyOptional<IRocketPunchIndicator> rkp_cap = entityLiving.getCapability(RocketPunchIndicator.ROCKET_PUNCH_INDICATOR);
-        final int capTimer = Math.min((this.getUseDuration(stack) - timeLeft), 40);
+        LazyOptional<IRocketPunchPlayerSkillRecord> rkp_cap = entityLiving.getCapability(RocketPunchPlayerSkillRecord.ROCKET_PUNCH_SKILL_RECORD);
+        final int capTimer = Math.min((this.getUseDuration(stack) - timeLeft), SkillConstants.ROCKET_PUNCH_MAX_STRENGTH);
         rkp_cap.ifPresent(
                 cap-> {
                     cap.setTimer(capTimer);

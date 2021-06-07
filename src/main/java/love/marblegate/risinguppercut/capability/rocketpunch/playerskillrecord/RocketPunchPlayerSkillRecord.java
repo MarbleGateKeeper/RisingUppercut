@@ -1,4 +1,4 @@
-package love.marblegate.risinguppercut.capability.rocketpunch;
+package love.marblegate.risinguppercut.capability.rocketpunch.playerskillrecord;
 
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBT;
@@ -9,19 +9,19 @@ import net.minecraftforge.common.capabilities.CapabilityManager;
 
 import javax.annotation.Nullable;
 
-public class RocketPunchIndicator {
-    @CapabilityInject(IRocketPunchIndicator.class)
-    public static Capability<IRocketPunchIndicator> ROCKET_PUNCH_INDICATOR = null;
+public class RocketPunchPlayerSkillRecord {
+    @CapabilityInject(IRocketPunchPlayerSkillRecord.class)
+    public static Capability<IRocketPunchPlayerSkillRecord> ROCKET_PUNCH_SKILL_RECORD = null;
 
     public static void register() {
-        CapabilityManager.INSTANCE.register(IRocketPunchIndicator.class, new Storage(), RocketPunchIndicatorStandardImpl::new);
+        CapabilityManager.INSTANCE.register(IRocketPunchPlayerSkillRecord.class, new Storage(), RocketPunchPlayerSkillRecordStandardImpl::new);
     }
 
-    public static class Storage implements Capability.IStorage<IRocketPunchIndicator> {
+    public static class Storage implements Capability.IStorage<IRocketPunchPlayerSkillRecord> {
 
         @Nullable
         @Override
-        public INBT writeNBT(Capability<IRocketPunchIndicator> capability, IRocketPunchIndicator instance, Direction side) {
+        public INBT writeNBT(Capability<IRocketPunchPlayerSkillRecord> capability, IRocketPunchPlayerSkillRecord instance, Direction side) {
             CompoundNBT compoundNBT = new CompoundNBT();
             compoundNBT.putInt("rkp_timer",instance.getTimer());
             compoundNBT.putInt("rkp_strength",instance.getStrength());
@@ -31,7 +31,7 @@ public class RocketPunchIndicator {
         }
 
         @Override
-        public void readNBT(Capability<IRocketPunchIndicator> capability, IRocketPunchIndicator instance, Direction side, INBT nbt) {
+        public void readNBT(Capability<IRocketPunchPlayerSkillRecord> capability, IRocketPunchPlayerSkillRecord instance, Direction side, INBT nbt) {
             int rkp_timer = ((CompoundNBT)nbt).getInt("rkp_timer");
             int rkp_strength = ((CompoundNBT)nbt).getInt("rkp_strength");
             double rkp_dx = ((CompoundNBT)nbt).getDouble("rkp_dx");

@@ -1,6 +1,6 @@
-package love.marblegate.risinguppercut.capability.rocketpunch;
+package love.marblegate.risinguppercut.capability.rocketpunch.playerskillrecord;
 
-public interface IRocketPunchIndicator {
+public interface IRocketPunchPlayerSkillRecord {
     void setTimer(int timer);
 
     int getTimer();

@@ -1,7 +1,7 @@
 package love.marblegate.risinguppercut.network;
 
-import love.marblegate.risinguppercut.capability.rocketpunch.IRocketPunchIndicator;
-import love.marblegate.risinguppercut.capability.rocketpunch.RocketPunchIndicator;
+import love.marblegate.risinguppercut.capability.rocketpunch.playerskillrecord.IRocketPunchPlayerSkillRecord;
+import love.marblegate.risinguppercut.capability.rocketpunch.playerskillrecord.RocketPunchPlayerSkillRecord;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketBuffer;
@@ -42,7 +42,7 @@ public class PacketRocketPunch {
         ctx.get().enqueueWork(() -> {
             if(ctx.get().getDirection() == NetworkDirection.PLAY_TO_CLIENT){
                 PlayerEntity player = Minecraft.getInstance().player;
-                LazyOptional<IRocketPunchIndicator> rkp_cap = player.getCapability(RocketPunchIndicator.ROCKET_PUNCH_INDICATOR);
+                LazyOptional<IRocketPunchPlayerSkillRecord> rkp_cap = player.getCapability(RocketPunchPlayerSkillRecord.ROCKET_PUNCH_SKILL_RECORD);
                 rkp_cap.ifPresent(
                         cap-> {
                             cap.setTimer(timer);
