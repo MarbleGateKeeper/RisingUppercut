@@ -2,6 +2,8 @@ package love.marblegate.risinguppercut.capability.rocketpunch.mobhitrecord;
 
 public class RocketPunchMobHitRecordStandardImpl implements IRocketPunchMobHitRecord {
     private int strength;
+    private double dX;
+    private double dZ;
     private String attackerName;
 
     public RocketPunchMobHitRecordStandardImpl(){
@@ -30,10 +32,28 @@ public class RocketPunchMobHitRecordStandardImpl implements IRocketPunchMobHitRe
         this.strength = strength;
     }
 
+    @Override
+    public void setDirection(double dX, double dZ) {
+        this.dX = dX;
+        this.dZ = dZ;
+    }
+
+    @Override
+    public double getDirectionX() {
+        return this.dX;
+    }
+
+    @Override
+    public double getDirectionZ() {
+        return this.dZ;
+    }
+
 
     @Override
     public void clear() {
         this.strength = 0;
         this.attackerName = "";
+        this.dZ = 0;
+        this.dX = 0;
     }
 }

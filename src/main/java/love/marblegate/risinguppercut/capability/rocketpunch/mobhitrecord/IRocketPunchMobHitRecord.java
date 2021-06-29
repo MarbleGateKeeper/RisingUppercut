@@ -9,5 +9,11 @@ public interface IRocketPunchMobHitRecord {
 
     void setStrength(int strength);
 
+    void setDirection(double dX, double dZ);
+
+    double getDirectionX();
+
+    double getDirectionZ();
+
     void clear();
 }

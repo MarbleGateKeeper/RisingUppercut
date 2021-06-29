@@ -11,20 +11,20 @@ import net.minecraftforge.fml.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
-public class PacketRocketPunch {
+public class PacketRocketPunchStatus {
     private final int timer;
     private final int strength;
     private final double dX;
     private final double dZ;
 
-    public PacketRocketPunch(PacketBuffer buffer) {
+    public PacketRocketPunchStatus(PacketBuffer buffer) {
         this.timer = buffer.readInt();
         this.dX = buffer.readDouble();
         this.dZ = buffer.readDouble();
         this.strength = buffer.readInt();
     }
 
-    public PacketRocketPunch(int timer,int strength,double dX,double dZ) {
+    public PacketRocketPunchStatus(int timer, int strength, double dX, double dZ) {
         this.timer = timer;
         this.dX = dX;
         this.dZ = dZ;

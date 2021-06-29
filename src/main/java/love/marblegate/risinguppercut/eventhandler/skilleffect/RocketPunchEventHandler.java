@@ -50,7 +50,7 @@ public class RocketPunchEventHandler {
                                     target.addPotionEffect(new EffectInstance(EffectRegistry.rocket_punch_hit.get(),200));
 
                                     //击退
-                                    target.applyKnockback(cap.getStrength()*0.25f,-cap.getDirectionX(),-cap.getDirectionZ());
+                                    //target.applyKnockback(cap.getStrength()*0.25f,-cap.getDirectionX(),-cap.getDirectionZ());
 
                                     //能力
                                     LazyOptional<IRocketPunchMobHitRecord> rkp_hit_cap = target.getCapability(RocketPunchMobHitRecord.ROCKET_PUNCH_MOB_HIT_RECORD);
@@ -58,6 +58,7 @@ public class RocketPunchEventHandler {
                                             hit_cap-> {
                                                 hit_cap.setStrength(cap.getStrength());
                                                 hit_cap.setAttackerName(event.player.getDisplayName().toString());
+                                                hit_cap.setDirection(cap.getDirectionX(),cap.getDirectionZ());
                                             }
                                     );
 

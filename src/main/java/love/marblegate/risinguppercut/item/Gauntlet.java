@@ -3,7 +3,7 @@ package love.marblegate.risinguppercut.item;
 import love.marblegate.risinguppercut.capability.rocketpunch.playerskillrecord.IRocketPunchPlayerSkillRecord;
 import love.marblegate.risinguppercut.capability.rocketpunch.playerskillrecord.RocketPunchPlayerSkillRecord;
 import love.marblegate.risinguppercut.network.Networking;
-import love.marblegate.risinguppercut.network.PacketRocketPunch;
+import love.marblegate.risinguppercut.network.PacketRocketPunchStatus;
 import love.marblegate.risinguppercut.util.RotationUtil;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -46,7 +46,7 @@ public class Gauntlet extends Item {
                     PacketDistributor.PLAYER.with(
                             () -> (ServerPlayerEntity) entityLiving
                     ),
-                    new PacketRocketPunch(capTimer,capTimer,RotationUtil.getHorizentalLookVecX(entityLiving),RotationUtil.getHorizentalLookVecZ(entityLiving)));
+                    new PacketRocketPunchStatus(capTimer,capTimer,RotationUtil.getHorizentalLookVecX(entityLiving),RotationUtil.getHorizentalLookVecZ(entityLiving)));
         }
     }
 

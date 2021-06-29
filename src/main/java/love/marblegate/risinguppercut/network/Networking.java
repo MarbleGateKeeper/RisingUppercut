@@ -23,10 +23,10 @@ public class Networking {
         );
         INSTANCE.registerMessage(
                 nextID(),
-                PacketRocketPunch.class,
-                PacketRocketPunch::toBytes,
-                PacketRocketPunch::new,
-                PacketRocketPunch::handle
+                PacketRocketPunchStatus.class,
+                PacketRocketPunchStatus::toBytes,
+                PacketRocketPunchStatus::new,
+                PacketRocketPunchStatus::handle
         );
     }
 }
