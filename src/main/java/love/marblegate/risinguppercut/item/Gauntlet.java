@@ -32,16 +32,17 @@ public class Gauntlet extends Item {
     }
 
     public void onPlayerStoppedUsing(ItemStack stack, World worldIn, LivingEntity entityLiving, int timeLeft){
-        LazyOptional<IRocketPunchPlayerSkillRecord> rkp_cap = entityLiving.getCapability(RocketPunchPlayerSkillRecord.ROCKET_PUNCH_SKILL_RECORD);
-        final int capTimer = Math.min((this.getUseDuration(stack) - timeLeft), SkillConstants.ROCKET_PUNCH_MAX_STRENGTH);
-        rkp_cap.ifPresent(
-                cap-> {
-                    cap.setTimer(capTimer);
-                    cap.setStrength(capTimer);
-                    cap.setDirection(RotationUtil.getHorizentalLookVecX(entityLiving),RotationUtil.getHorizentalLookVecZ(entityLiving));
-                }
-        );
         if (!worldIn.isRemote) {
+            LazyOptional<IRocketPunchPlayerSkillRecord> rkp_cap = entityLiving.getCapability(RocketPunchPlayerSkillRecord.ROCKET_PUNCH_SKILL_RECORD);
+            final int capTimer = Math.min((this.getUseDuration(stack) - timeLeft), SkillConstants.ROCKET_PUNCH_MAX_STRENGTH);
+            rkp_cap.ifPresent(
+                    cap-> {
+                        cap.setTimer(capTimer);
+                        cap.setStrength(capTimer);
+                        cap.setDirection(RotationUtil.getHorizentalLookVecX(entityLiving),RotationUtil.getHorizentalLookVecZ(entityLiving));
+                    }
+            );
+            //Sync to client
             Networking.INSTANCE.send(
                     PacketDistributor.PLAYER.with(
                             () -> (ServerPlayerEntity) entityLiving

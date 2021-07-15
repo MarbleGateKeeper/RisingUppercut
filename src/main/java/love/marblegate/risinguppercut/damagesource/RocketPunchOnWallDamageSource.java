@@ -1,17 +1,18 @@
 package love.marblegate.risinguppercut.damagesource;
 
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 
 
 public class RocketPunchOnWallDamageSource extends DamageSource {
-    String damageSourceEntityName;
+    PlayerEntity playerEntity;
 
-    public RocketPunchOnWallDamageSource(String damageSourceEntityName) {
+    public RocketPunchOnWallDamageSource(PlayerEntity playerEntity) {
         super("rocket_punch_on_wall");
-        this.damageSourceEntityName = damageSourceEntityName;
+        this.playerEntity = playerEntity;
     }
 
     /**
@@ -19,6 +20,6 @@ public class RocketPunchOnWallDamageSource extends DamageSource {
      */
     public ITextComponent getDeathMessage(LivingEntity entityLivingBaseIn) {
         String s = "death.attack." + this.damageType;
-        return new TranslationTextComponent(s, entityLivingBaseIn.getDisplayName(),damageSourceEntityName);
+        return new TranslationTextComponent(s, entityLivingBaseIn.getDisplayName(), playerEntity);
     }
 }

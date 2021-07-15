@@ -1,9 +1,7 @@
 package love.marblegate.risinguppercut.capability;
 
-import love.marblegate.risinguppercut.capability.rocketpunch.mobhitrecord.RocketPunchHitRecordMobProvider;
 import love.marblegate.risinguppercut.capability.rocketpunch.playerskillrecord.RocketPunchPlayerProvider;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
@@ -17,9 +15,6 @@ public class CapabilityAttach {
         Entity entity = event.getObject();
         if (entity instanceof PlayerEntity) {
             event.addCapability(new ResourceLocation("rising_uppercut", "rocket_punch_skill_record"), new RocketPunchPlayerProvider());
-        }
-        if (entity instanceof LivingEntity) {
-            event.addCapability(new ResourceLocation("rising_uppercut", "rocket_punch_hit_record"), new RocketPunchHitRecordMobProvider());
         }
     }
 }
