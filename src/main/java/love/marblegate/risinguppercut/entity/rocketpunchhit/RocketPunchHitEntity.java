@@ -1,4 +1,4 @@
-package love.marblegate.risinguppercut.entity;
+package love.marblegate.risinguppercut.entity.rocketpunchhit;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -21,18 +21,20 @@ public class RocketPunchHitEntity extends Entity {
         super(entityTypeIn, worldIn);
     }
 
+
+
+    @Override
+    public void tick() {
+        super.tick();
+    }
+
+
     @Override
     protected void registerData() {
         dataManager.register(STRENGTH,0);
         dataManager.register(TIMER,0);
         dataManager.register(DIRECTION_X,0F);
         dataManager.register(DIRECTION_Z,0F);
-    }
-
-    @Override
-    public void tick() {
-
-        super.tick();
     }
 
     @Override
