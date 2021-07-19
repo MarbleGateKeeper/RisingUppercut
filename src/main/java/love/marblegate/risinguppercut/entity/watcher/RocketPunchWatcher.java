@@ -13,7 +13,6 @@ import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.network.NetworkHooks;
 
 import java.util.ArrayList;
@@ -27,7 +26,7 @@ public class RocketPunchWatcher extends Entity {
     double dz;
     int strength;
     PlayerEntity source;
-    List<LivingEntity> watchedEntities ;
+    List<YUnchangedLivingEntity> watchedEntities ;
 
     public RocketPunchWatcher(World worldIn, BlockPos pos, double dx, double dz, int strength, int timer, PlayerEntity source) {
         super(EntityRegistry.rocket_punch_watcher.get(), worldIn);
@@ -46,13 +45,13 @@ public class RocketPunchWatcher extends Entity {
 
     public void watch(LivingEntity livingEntity){
         if(livingEntity != null){
-            watchedEntities.add(livingEntity);
+            watchedEntities.add(new YUnchangedLivingEntity(livingEntity));
         }
     }
 
-    public void removeFromWatchList(LivingEntity livingEntity){
-        if(livingEntity != null){
-            watchedEntities.remove(livingEntity);
+    public void removeFromWatchList(YUnchangedLivingEntity yUnchangedLivingEntity){
+        if(yUnchangedLivingEntity != null){
+            watchedEntities.remove(yUnchangedLivingEntity);
         }
     }
 
@@ -64,18 +63,16 @@ public class RocketPunchWatcher extends Entity {
             int temp = dataManager.get(TIMER);
             if(watchedEntities!=null&&source!=null){
                 if(!watchedEntities.isEmpty()){
-                    List<LivingEntity> entitiesRemoveFromWatchList = new ArrayList<>();
-                    for(LivingEntity entity:watchedEntities){
-                        if(entity.collidedHorizontally){
-                            entity.attackEntityFrom(new RocketPunchOnWallDamageSource(source),strength*0.5f);
+                    List<YUnchangedLivingEntity> entitiesRemoveFromWatchList = new ArrayList<>();
+                    for(YUnchangedLivingEntity entity:watchedEntities){
+                        if(entity.livingEntity.collidedHorizontally){
+                            entity.livingEntity.attackEntityFrom(new RocketPunchOnWallDamageSource(source),strength*0.5f);
                             entitiesRemoveFromWatchList.add(entity);
                         } else {
-                            entity.setMotion(dx * SPEED_INDEX,0,dz * SPEED_INDEX);
-                            entity.markPositionDirty();
-                            entity.velocityChanged = true;
+                            entity.setMotion(dx * SPEED_INDEX,dz * SPEED_INDEX);
                         }
                     }
-                    for(LivingEntity remove:entitiesRemoveFromWatchList){
+                    for(YUnchangedLivingEntity remove:entitiesRemoveFromWatchList){
                         removeFromWatchList(remove);
                     }
                     if(temp - 1 == 0) {
@@ -122,9 +119,26 @@ public class RocketPunchWatcher extends Entity {
         compound.putDouble("dz",dz);
     }
 
-
     @Override
     public IPacket<?> createSpawnPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
+    }
+
+    static class YUnchangedLivingEntity{
+        LivingEntity livingEntity;
+        double Y;
+
+        public YUnchangedLivingEntity(LivingEntity livingEntity) {
+            this.livingEntity = livingEntity;
+            Y = livingEntity.getPosY();
+        }
+
+        void setMotion(double X, double Z){
+            livingEntity.setMotion(X,0,Z);
+            livingEntity.setPosition(livingEntity.getPosX(),Y,livingEntity.getPosZ());
+            livingEntity.markPositionDirty();
+            livingEntity.velocityChanged = true;
+        }
+
     }
 }

@@ -16,11 +16,11 @@ displayName="Rising Uppercut" #mandatory
 # A URL to query for updates for this mod. See the JSON update specification https://mcforge.readthedocs.io/en/latest/gettingstarted/autoupdate/
 #updateJSONURL="https://change.me.example.invalid/updates.json" #optional
 #displayURL="https://change.me.to.your.mods.homepage.example.invalid/" #optional
-logoFile="risinguppercut.png" #optional
+logoFile="rising_uppercut.png" #optional
 credits="MarbleGateKeeper 白门守望者" #optional
 authors="MarbleGate 纯白之门" #optional
 description='''
-你倒是跑啊？
+Only through conflict do we evolve.
 '''
 # A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
 [[dependencies.examplemod]] #optional

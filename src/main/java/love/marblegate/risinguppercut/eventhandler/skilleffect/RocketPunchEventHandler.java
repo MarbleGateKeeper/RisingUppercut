@@ -83,7 +83,7 @@ public class RocketPunchEventHandler {
                                 //event.player.lookAt(EntityAnchorArgument.Type.EYES,event.player.getPositionVec().add(cap.getDirectionX(),event.player.getEyeHeight(),cap.getDirectionZ()));
 
                                 //lock moving direction
-                                event.player.setMotion(cap.getDirectionX()*2f,0,cap.getDirectionZ()*2f);
+                                event.player.setMotion(cap.getDirectionX()*2f,0.1,cap.getDirectionZ()*2f);
 
                                 event.player.markPositionDirty();
                                 event.player.velocityChanged = true;
