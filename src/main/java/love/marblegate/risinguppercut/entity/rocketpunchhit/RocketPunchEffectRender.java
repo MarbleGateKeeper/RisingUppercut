@@ -10,7 +10,7 @@ import net.minecraft.util.ResourceLocation;
 public class RocketPunchEffectRender extends EntityRenderer<RocketPunchHitEntity> {
     EntityModel<RocketPunchHitEntity> entityModel;
 
-    protected RocketPunchEffectRender(EntityRendererManager renderManager) {
+    public RocketPunchEffectRender(EntityRendererManager renderManager) {
         super(renderManager);
         entityModel = new RocketPunchEffectModel();
     }

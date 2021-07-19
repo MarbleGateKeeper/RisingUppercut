@@ -3,25 +3,15 @@ package love.marblegate.risinguppercut.eventhandler.skilleffect;
 import love.marblegate.risinguppercut.capability.rocketpunch.playerskillrecord.IRocketPunchPlayerSkillRecord;
 import love.marblegate.risinguppercut.capability.rocketpunch.playerskillrecord.RocketPunchPlayerSkillRecord;
 import love.marblegate.risinguppercut.damagesource.RocketPunchDamageSource;
-import net.minecraft.block.BlockState;
+import love.marblegate.risinguppercut.entity.rocketpunchhit.RocketPunchHitEntity;
 import net.minecraft.command.arguments.EntityAnchorArgument;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.potion.Effects;
-import net.minecraft.util.Direction;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.vector.Vector2f;
-import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-import java.util.Iterator;
 import java.util.List;
 
 @Mod.EventBusSubscriber()
@@ -46,18 +36,20 @@ public class RocketPunchEventHandler {
                 if (!checks.isEmpty()) {
                     rkp_cap.ifPresent(
                             cap-> {
-
                                 //And rocket punch is active
                                 if(cap.getTimer()>0){
+                                    //spawn an watchEntity to simulate rocket punch effect
+                                    RocketPunchHitEntity watchEntity = new RocketPunchHitEntity(event.player.world, event.player.getPosition(), cap.getDirectionX(),cap.getDirectionZ(),cap.getStrength(),cap.getStrength(),event.player);
                                     for(LivingEntity target: checks){
                                         //Deal damage
-                                        target.attackEntityFrom(new RocketPunchDamageSource(event.player.getDisplayName().toString()),cap.getStrength()*0.5f);
-
-                                        //spawn an entity to simulate rocket punch effect
+                                        target.attackEntityFrom(new RocketPunchDamageSource(event.player),cap.getStrength()*0.5f);
 
 
-
+                                        if(target.isAlive()){
+                                            watchEntity.watch(target);
+                                        }
                                     }
+                                    event.player.world.addEntity(watchEntity);
 
                                     //Player stop moving and clear pocket punch status
                                     event.player.setMotion(0,0,0);
@@ -88,7 +80,8 @@ public class RocketPunchEventHandler {
                             //Deal with player rocket punch movement
                             if(cap.getTimer()>0){
                                 //lock player view
-                                event.player.lookAt(EntityAnchorArgument.Type.EYES,event.player.getPositionVec().add(cap.getDirectionX(),event.player.getEyeHeight(),cap.getDirectionZ()));
+                                //TODO: Fix strange Glitch
+                                //event.player.lookAt(EntityAnchorArgument.Type.EYES,event.player.getPositionVec().add(cap.getDirectionX(),event.player.getEyeHeight(),cap.getDirectionZ()));
 
                                 //lock moving direction
                                 event.player.setMotion(cap.getDirectionX()*2f,0,cap.getDirectionZ()*2f);
