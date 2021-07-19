@@ -20,8 +20,6 @@ public class RocketPunchOnWallDamageSource extends DamageSource {
      */
     public ITextComponent getDeathMessage(LivingEntity entityLivingBaseIn) {
         String s = "death.attack." + this.damageType;
-        String sn = "death.attack." + this.damageType +".null_attacker" ;
-        if(playerEntity!=null) return new TranslationTextComponent(s, entityLivingBaseIn.getDisplayName(),playerEntity);
-        else return new TranslationTextComponent(sn, entityLivingBaseIn.getDisplayName());
+        return new TranslationTextComponent(s, entityLivingBaseIn.getDisplayName(),playerEntity);
     }
 }

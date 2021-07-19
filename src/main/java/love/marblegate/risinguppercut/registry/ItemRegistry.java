@@ -9,6 +9,6 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 public class ItemRegistry {
     public static final DeferredRegister<Item> ITEM = DeferredRegister.create(ForgeRegistries.ITEMS, "rising_uppercut");
-    public static final RegistryObject<Item> gauntlet = ITEM.register("gauntlet", () -> new Gauntlet());
+    public static final RegistryObject<Item> gauntlet = ITEM.register("gauntlet", Gauntlet::new);
 
 }

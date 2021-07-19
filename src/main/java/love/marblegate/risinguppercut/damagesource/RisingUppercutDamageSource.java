@@ -7,11 +7,11 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 
 
-public class RocketPunchDamageSource extends DamageSource {
+public class RisingUppercutDamageSource extends DamageSource {
     PlayerEntity playerEntity;
 
-    public RocketPunchDamageSource(PlayerEntity playerEntity) {
-        super("rocket_punch");
+    public RisingUppercutDamageSource(PlayerEntity playerEntity) {
+        super("rising_uppercut");
         this.playerEntity = playerEntity;
     }
 

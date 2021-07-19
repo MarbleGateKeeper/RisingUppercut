@@ -2,6 +2,8 @@ package love.marblegate.risinguppercut.item;
 
 import love.marblegate.risinguppercut.capability.rocketpunch.playerskillrecord.IRocketPunchPlayerSkillRecord;
 import love.marblegate.risinguppercut.capability.rocketpunch.playerskillrecord.RocketPunchPlayerSkillRecord;
+import love.marblegate.risinguppercut.damagesource.RisingUppercutDamageSource;
+import love.marblegate.risinguppercut.entity.watcher.RisingUppercutWatcher;
 import love.marblegate.risinguppercut.network.Networking;
 import love.marblegate.risinguppercut.network.PacketRocketPunchStatus;
 import love.marblegate.risinguppercut.util.RotationUtil;
@@ -13,15 +15,20 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.UseAction;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fml.network.PacketDistributor;
+
+import java.util.List;
 
 public class Gauntlet extends Item {
 
     public static class SkillConstants{
         public static int ROCKET_PUNCH_MAX_STRENGTH = 26;
+        public static int RISING_UPPERCUT_CONTROL_TIME = 12;
     }
 
     public Gauntlet() {
@@ -31,31 +38,74 @@ public class Gauntlet extends Item {
                 .isImmuneToFire());
     }
 
-    public void onPlayerStoppedUsing(ItemStack stack, World worldIn, LivingEntity entityLiving, int timeLeft){
+
+    public void onPlayerStoppedUsing(ItemStack stack, World worldIn, LivingEntity entityLiving, int timeLeft) {
         if (!worldIn.isRemote) {
             LazyOptional<IRocketPunchPlayerSkillRecord> rkp_cap = entityLiving.getCapability(RocketPunchPlayerSkillRecord.ROCKET_PUNCH_SKILL_RECORD);
-            final int capTimer = Math.min((this.getUseDuration(stack) - timeLeft), SkillConstants.ROCKET_PUNCH_MAX_STRENGTH);
+            final int capTimer = Math.min((getUseDuration(stack) - timeLeft), SkillConstants.ROCKET_PUNCH_MAX_STRENGTH);
             rkp_cap.ifPresent(
-                    cap-> {
+                    cap -> {
                         cap.setTimer(capTimer);
                         cap.setStrength(capTimer);
-                        cap.setDirection(RotationUtil.getHorizentalLookVecX(entityLiving),RotationUtil.getHorizentalLookVecZ(entityLiving));
+                        cap.setDirection(RotationUtil.getHorizentalLookVecX(entityLiving), RotationUtil.getHorizentalLookVecZ(entityLiving));
                     }
             );
+            ((PlayerEntity) entityLiving).getCooldownTracker().setCooldown(this,40);
             //Sync to client
             Networking.INSTANCE.send(
                     PacketDistributor.PLAYER.with(
                             () -> (ServerPlayerEntity) entityLiving
                     ),
-                    new PacketRocketPunchStatus(capTimer,capTimer,RotationUtil.getHorizentalLookVecX(entityLiving),RotationUtil.getHorizentalLookVecZ(entityLiving)));
+                    new PacketRocketPunchStatus(capTimer, capTimer, RotationUtil.getHorizentalLookVecX(entityLiving), RotationUtil.getHorizentalLookVecZ(entityLiving)));
+        }
+    }
+
+    @Override
+    public ActionResultType itemInteractionForEntity(ItemStack stack, PlayerEntity playerIn, LivingEntity target, Hand hand) {
+        if (target.world.isRemote) return ActionResultType.PASS;
+        else{
+            doRisingUppercut(playerIn.world,playerIn);
+            return ActionResultType.SUCCESS;
         }
     }
 
     public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
         ItemStack itemstack = playerIn.getHeldItem(handIn);
-        playerIn.setActiveHand(handIn);
-        return ActionResult.resultConsume(itemstack);
+        //Work for rising uppercut
+        if(playerIn.isSneaking()){
+            if(!worldIn.isRemote()){
+                doRisingUppercut(worldIn,playerIn);
+            }
+            return ActionResult.resultSuccess(itemstack);
+        }
+        //Work for rocket punch
+        else{
+            playerIn.setActiveHand(handIn);
+            return ActionResult.resultConsume(itemstack);
+        }
     }
+
+    void doRisingUppercut(World worldIn, PlayerEntity playerIn){
+        //Slightly enlarge player's hitbox
+        AxisAlignedBB collideBox = playerIn.getBoundingBox().expand(RotationUtil.getHorizentalLookVecX(playerIn)*3,0,RotationUtil.getHorizentalLookVecZ(playerIn)*3);
+
+        //Collision Detection
+        List<LivingEntity> checks = playerIn.world
+                .getEntitiesWithinAABB(LivingEntity.class,collideBox);
+        checks.remove(playerIn);
+
+        RisingUppercutWatcher watchEntity = new RisingUppercutWatcher(playerIn.world, playerIn.getPosition(),SkillConstants.RISING_UPPERCUT_CONTROL_TIME,playerIn);
+        if(!checks.isEmpty()){
+            for(LivingEntity livingEntity:checks){
+                livingEntity.attackEntityFrom(new RisingUppercutDamageSource(playerIn),8);
+                watchEntity.watch(livingEntity);
+            }
+        }
+        worldIn.addEntity(watchEntity);
+        playerIn.getCooldownTracker().setCooldown(this,40);
+    }
+
+
 
     public int getUseDuration(ItemStack stack) {
         return 72000;

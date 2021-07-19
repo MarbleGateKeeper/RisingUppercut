@@ -1,6 +1,6 @@
 package love.marblegate.risinguppercut.registry;
 
-import love.marblegate.risinguppercut.entity.rocketpunchhit.RocketPunchEffectRender;
+import love.marblegate.risinguppercut.entity.BlankRender;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
@@ -11,6 +11,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 public class RendererRegistry {
     @SubscribeEvent
     public static void onClientSetUpEvent(FMLClientSetupEvent event) {
-        RenderingRegistry.registerEntityRenderingHandler(EntityRegistry.rocket_punch_hit_effect.get(), RocketPunchEffectRender::new);
+        RenderingRegistry.registerEntityRenderingHandler(EntityRegistry.rocket_punch_watcher.get(), BlankRender::new);
+        RenderingRegistry.registerEntityRenderingHandler(EntityRegistry.rising_uppercut_watcher.get(), BlankRender::new);
     }
 }

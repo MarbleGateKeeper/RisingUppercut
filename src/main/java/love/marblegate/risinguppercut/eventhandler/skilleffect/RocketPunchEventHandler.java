@@ -3,8 +3,7 @@ package love.marblegate.risinguppercut.eventhandler.skilleffect;
 import love.marblegate.risinguppercut.capability.rocketpunch.playerskillrecord.IRocketPunchPlayerSkillRecord;
 import love.marblegate.risinguppercut.capability.rocketpunch.playerskillrecord.RocketPunchPlayerSkillRecord;
 import love.marblegate.risinguppercut.damagesource.RocketPunchDamageSource;
-import love.marblegate.risinguppercut.entity.rocketpunchhit.RocketPunchHitEntity;
-import net.minecraft.command.arguments.EntityAnchorArgument;
+import love.marblegate.risinguppercut.entity.watcher.RocketPunchWatcher;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.common.util.LazyOptional;
@@ -39,7 +38,7 @@ public class RocketPunchEventHandler {
                                 //And rocket punch is active
                                 if(cap.getTimer()>0){
                                     //spawn an watchEntity to simulate rocket punch effect
-                                    RocketPunchHitEntity watchEntity = new RocketPunchHitEntity(event.player.world, event.player.getPosition(), cap.getDirectionX(),cap.getDirectionZ(),cap.getStrength(),cap.getStrength(),event.player);
+                                    RocketPunchWatcher watchEntity = new RocketPunchWatcher(event.player.world, event.player.getPosition(), cap.getDirectionX(),cap.getDirectionZ(),cap.getStrength(),cap.getStrength(),event.player);
                                     for(LivingEntity target: checks){
                                         //Deal damage
                                         target.attackEntityFrom(new RocketPunchDamageSource(event.player),cap.getStrength()*0.5f);
@@ -90,17 +89,6 @@ public class RocketPunchEventHandler {
                                 event.player.velocityChanged = true;
 
                                 cap.decrease();
-
-                            /*
-                            Should we send packet here?
-                            if(!event.player.world.isRemote()) {
-                                Networking.INSTANCE.send(
-                                        PacketDistributor.PLAYER.with(
-                                                () -> (ServerPlayerEntity) event.player
-                                        ),
-                                        new PacketRocketPunch(cap.getTimer(),cap.getStrength(),cap.getDirectionX(),cap.getDirectionZ()));
-                            }
-                             */
                             }
                         }
                 );
