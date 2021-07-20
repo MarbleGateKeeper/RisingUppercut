@@ -6,12 +6,12 @@ import love.marblegate.risinguppercut.damagesource.RisingUppercutDamageSource;
 import love.marblegate.risinguppercut.entity.watcher.RisingUppercutWatcher;
 import love.marblegate.risinguppercut.network.Networking;
 import love.marblegate.risinguppercut.network.PacketRocketPunchStatus;
+import love.marblegate.risinguppercut.util.ModGroup;
 import love.marblegate.risinguppercut.util.RotationUtil;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.UseAction;
 import net.minecraft.util.ActionResult;
@@ -33,7 +33,7 @@ public class Gauntlet extends Item {
 
     public Gauntlet() {
         super(new Properties()
-                .group(ItemGroup.COMBAT)
+                .group(ModGroup.INSTANCE)
                 .maxStackSize(1)
                 .isImmuneToFire());
     }
@@ -58,6 +58,16 @@ public class Gauntlet extends Item {
                     ),
                     new PacketRocketPunchStatus(capTimer, capTimer, RotationUtil.getHorizentalLookVecX(entityLiving), RotationUtil.getHorizentalLookVecZ(entityLiving)));
         }
+    }
+
+    @Override
+    public boolean isEnchantable(ItemStack stack) {
+        return true;
+    }
+
+    @Override
+    public int getItemEnchantability() {
+        return 15;
     }
 
     @Override
