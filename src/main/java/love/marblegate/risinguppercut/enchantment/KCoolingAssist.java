@@ -7,7 +7,7 @@ import net.minecraft.inventory.EquipmentSlotType;
 
 public class KCoolingAssist extends Enchantment{
     public KCoolingAssist() {
-        super(Rarity.VERY_RARE , CustomEnchantmentType.GAUNTLET, new EquipmentSlotType[]{EquipmentSlotType.MAINHAND});
+        super(Rarity.RARE , CustomEnchantmentType.GAUNTLET, new EquipmentSlotType[]{EquipmentSlotType.MAINHAND});
     }
 
     @Override
@@ -18,7 +18,7 @@ public class KCoolingAssist extends Enchantment{
 
     @Override
     public int getMinEnchantability(int p_77321_1_) {
-        return 10;
+        return 30;
     }
 
     @Override

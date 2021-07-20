@@ -7,7 +7,7 @@ import net.minecraft.inventory.EquipmentSlotType;
 
 public class KKineticOptimization extends Enchantment{
     public KKineticOptimization() {
-        super(Rarity.VERY_RARE , CustomEnchantmentType.GAUNTLET, new EquipmentSlotType[]{EquipmentSlotType.MAINHAND});
+        super(Rarity.RARE , CustomEnchantmentType.GAUNTLET, new EquipmentSlotType[]{EquipmentSlotType.MAINHAND});
     }
 
     @Override
@@ -18,7 +18,7 @@ public class KKineticOptimization extends Enchantment{
 
     @Override
     public int getMinEnchantability(int p_77321_1_) {
-        return 10;
+        return 30;
     }
 
     @Override

@@ -8,9 +8,11 @@ import love.marblegate.risinguppercut.network.Networking;
 import love.marblegate.risinguppercut.network.PacketRocketPunchStatus;
 import love.marblegate.risinguppercut.util.ModGroup;
 import love.marblegate.risinguppercut.util.RotationUtil;
+import net.minecraft.enchantment.IVanishable;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.UseAction;
@@ -24,10 +26,10 @@ import net.minecraftforge.fml.network.PacketDistributor;
 
 import java.util.List;
 
-public class Gauntlet extends Item {
+public class Gauntlet extends Item implements IVanishable {
 
     public static class SkillConstants{
-        public static int ROCKET_PUNCH_MAX_STRENGTH = 26;
+        public static int ROCKET_PUNCH_MAX_STRENGTH = 20;
         public static int RISING_UPPERCUT_CONTROL_TIME = 12;
     }
 
@@ -35,6 +37,7 @@ public class Gauntlet extends Item {
         super(new Properties()
                 .group(ModGroup.INSTANCE)
                 .maxStackSize(1)
+                .maxDamage(1024)
                 .isImmuneToFire());
     }
 
@@ -50,6 +53,9 @@ public class Gauntlet extends Item {
                         cap.setDirection(RotationUtil.getHorizentalLookVecX(entityLiving), RotationUtil.getHorizentalLookVecZ(entityLiving));
                     }
             );
+            stack.damageItem(1, ((PlayerEntity) entityLiving), (entity) -> {
+                entity.sendBreakAnimation(EquipmentSlotType.MAINHAND);
+            });
             ((PlayerEntity) entityLiving).getCooldownTracker().setCooldown(this,40);
             //Sync to client
             Networking.INSTANCE.send(
@@ -67,7 +73,7 @@ public class Gauntlet extends Item {
 
     @Override
     public int getItemEnchantability() {
-        return 15;
+        return 18;
     }
 
     @Override
@@ -75,6 +81,9 @@ public class Gauntlet extends Item {
         if (target.world.isRemote) return ActionResultType.PASS;
         else{
             doRisingUppercut(playerIn.world,playerIn);
+            stack.damageItem(1, playerIn, (entity) -> {
+                entity.sendBreakAnimation(EquipmentSlotType.MAINHAND);
+            });
             return ActionResultType.SUCCESS;
         }
     }
@@ -85,6 +94,9 @@ public class Gauntlet extends Item {
         if(playerIn.isSneaking()){
             if(!worldIn.isRemote()){
                 doRisingUppercut(worldIn,playerIn);
+                itemstack.damageItem(1, playerIn, (entity) -> {
+                    entity.sendBreakAnimation(EquipmentSlotType.MAINHAND);
+                });
             }
             return ActionResult.resultSuccess(itemstack);
         }

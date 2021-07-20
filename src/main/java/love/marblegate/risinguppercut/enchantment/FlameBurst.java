@@ -5,15 +5,21 @@ import love.marblegate.risinguppercut.util.CustomEnchantmentType;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.inventory.EquipmentSlotType;
 
-public class MGCalculationAssist extends Enchantment{
-    public MGCalculationAssist() {
-        super(Rarity.RARE , CustomEnchantmentType.GAUNTLET, new EquipmentSlotType[]{EquipmentSlotType.MAINHAND});
+public class FlameBurst extends Enchantment{
+    public FlameBurst() {
+        super(Rarity.VERY_RARE , CustomEnchantmentType.GAUNTLET, new EquipmentSlotType[]{EquipmentSlotType.MAINHAND});
     }
 
     @Override
     public boolean canApplyTogether(Enchantment p_77326_1_) {
         return super.canApplyTogether(p_77326_1_)
-                && p_77326_1_ != EnchantmentRegistry.kadokawa_calculation_assist.get();
+                && p_77326_1_ != EnchantmentRegistry.dragonbite.get()
+                && p_77326_1_ != EnchantmentRegistry.guardian_angel.get();
+    }
+
+    @Override
+    public boolean isTreasureEnchantment() {
+        return true;
     }
 
     @Override
