@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "AAA",
+    "BCB",
+    "DED"
+  ],
+  "key": {
+    "A": {
+      "item": "minecraft:iron_block"
+    },
+    "B": {
+      "item": "minecraft:piston"
+    },
+    "C": {
+      "item": "minecraft:slime_block"
+    },
+    "D": {
+      "item": "minecraft:redstone_block"
+    },
+    "E": {
+      "item": "minecraft:sticky_piston"
+    }
+  },
+  "result": {
+    "item": "rising_uppercut:gauntlet_kinetic_core"
+  }
+}

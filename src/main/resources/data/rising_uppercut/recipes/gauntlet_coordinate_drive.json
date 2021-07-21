@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ABA",
+    "B B",
+    "ABA"
+  ],
+  "key": {
+    "A": {
+      "item": "minecraft:redstone_block"
+    },
+    "B": {
+      "item": "minecraft:ender_eye"
+    }
+  },
+  "result": {
+    "item": "rising_uppercut:gauntlet_coordinate_drive"
+  }
+}

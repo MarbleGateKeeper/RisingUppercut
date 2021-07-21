@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ABA",
+    "ACA",
+    "DED"
+  ],
+  "key": {
+    "A": {
+      "item": "minecraft:iron_block"
+    },
+    "B": {
+      "item": "rising_uppercut:gauntlet_surface"
+    },
+    "C": {
+      "item": "rising_uppercut:gauntlet_kinetic_core"
+    },
+    "D": {
+      "item": "rising_uppercut:gauntlet_coordinate_drive"
+    },
+    "E": {
+      "item": "rising_uppercut:gauntlet_cooler"
+    }
+  },
+  "result": {
+    "item": "rising_uppercut:gauntlet"
+  }
+}

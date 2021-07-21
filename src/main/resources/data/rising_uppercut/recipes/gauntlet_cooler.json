@@ -1,0 +1,33 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "A A",
+    "ABA",
+    "ACA"
+  ],
+  "key": {
+    "A": {
+      "item": "minecraft:iron_block"
+    },
+    "B": [
+      {
+        "item": "minecraft:ice"
+      },
+      {
+        "item": "minecraft:blue_ice"
+      },
+      {
+        "item": "minecraft:packed_ice"
+      },
+      {
+        "item": "minecraft:snow_block"
+      }
+    ],
+    "C": {
+      "item": "minecraft:dispenser"
+    }
+  },
+  "result": {
+    "item": "rising_uppercut:gauntlet_cooler"
+  }
+}
