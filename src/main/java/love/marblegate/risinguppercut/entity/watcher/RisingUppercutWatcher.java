@@ -1,7 +1,6 @@
 package love.marblegate.risinguppercut.entity.watcher;
 
 import love.marblegate.risinguppercut.damagesource.RisingUppercutDamageSource;
-import love.marblegate.risinguppercut.damagesource.RocketPunchOnWallDamageSource;
 import love.marblegate.risinguppercut.registry.EntityRegistry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -9,30 +8,42 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
-import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.registry.IEntityAdditionalSpawnData;
 import net.minecraftforge.fml.network.NetworkHooks;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class RisingUppercutWatcher extends Entity {
     static final DataParameter<Integer> TIMER = EntityDataManager.createKey(RisingUppercutWatcher.class, DataSerializers.VARINT);
+    int totalTime;
+    int floatingTime;
+    double speedIndex;
+    float damage;
+    boolean ignoreArmor;
+    boolean healing;
+    boolean isFireDamage;
     PlayerEntity source; //Can be null
     List<LivingEntity> watchedEntities ;
 
-    public RisingUppercutWatcher(World worldIn, BlockPos pos, int timer, PlayerEntity source) {
-        super(EntityRegistry.rocket_punch_watcher.get(), worldIn);
+    public RisingUppercutWatcher(World worldIn, BlockPos pos, PlayerEntity source, int upwardTime, int floatingTime, double speedIndex, float damage, boolean ignoreArmor, boolean healing, boolean isFireDamage) {
+        super(EntityRegistry.ROCKET_PUNCH_WATCHER.get(), worldIn);
         setPosition(pos.getX(),pos.getY(),pos.getZ());
-        dataManager.set(TIMER,timer);
+        dataManager.set(TIMER,upwardTime+floatingTime);
+        totalTime = upwardTime+floatingTime;
         this.source = source;
+        this.floatingTime = floatingTime;
+        this.speedIndex = speedIndex;
+        this.damage = damage;
+        this.ignoreArmor = ignoreArmor;
+        this.healing = healing;
+        this.isFireDamage = isFireDamage;
         watchedEntities = new ArrayList<>();
     }
 
@@ -55,21 +66,35 @@ public class RisingUppercutWatcher extends Entity {
             if(watchedEntities!=null&&source!=null){
                 if(!watchedEntities.isEmpty()){
                     for(LivingEntity entity:watchedEntities){
-                        if(temp==13){
-                            entity.attackEntityFrom(new RisingUppercutDamageSource(source),8);
+                        if(temp==totalTime-1){
+                            DamageSource damageSource = new RisingUppercutDamageSource(source);
+                            if(isFireDamage){
+                                damageSource.setFireDamage();
+                                entity.attackEntityFrom(damageSource,damage);
+                                entity.setFire(3);
+                            } else if(ignoreArmor) {
+                                damageSource.setDamageBypassesArmor();
+                                entity.attackEntityFrom(damageSource,damage);
+                            } else if(healing) {
+                                System.out.print(entity.getHealth()+"->");
+                                entity.heal(damage);
+                                System.out.print(entity.getHealth()+"\n");
+                            } else {
+                                entity.attackEntityFrom(damageSource,damage);
+                            }
                         }
-                        if(temp>4){
-                            moveVertically(entity,temp*0.1);
-                        } else if (temp>2) {
+                        if(temp>floatingTime){
+                            moveVertically(entity,temp * speedIndex);
+                        } else if (temp>floatingTime/2) {
                             moveVertically(entity,0.1);
                         } else {
                             moveVertically(entity,-0.1);
                         }
                     }
                 }
-                if(temp>4){
-                    moveVertically(source,temp*0.1);
-                } else if (temp>2) {
+                if(temp>floatingTime){
+                    moveVertically(source,temp * speedIndex);
+                } else if (temp>floatingTime/2) {
                     moveVerticallyWithHorizonControl(source,0.1);
                 } else {
                     moveVerticallyWithHorizonControl(source,-0.1);
@@ -107,14 +132,13 @@ public class RisingUppercutWatcher extends Entity {
 
     @Override
     protected void readAdditional(CompoundNBT compound) {
-        watchedEntities = new ArrayList<>();
         source = null;
-        dataManager.set(TIMER,compound.getInt("timer"));
+        dataManager.set(TIMER,0);
     }
 
     @Override
     protected void writeAdditional(CompoundNBT compound) {
-        compound.putInt("timer",dataManager.get(TIMER));
+
     }
 
     @Override

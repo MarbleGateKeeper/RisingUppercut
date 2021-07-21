@@ -11,6 +11,7 @@ import net.minecraft.network.IPacket;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkHooks;
@@ -20,27 +21,35 @@ import java.util.List;
 
 
 public class RocketPunchWatcher extends Entity {
-    static final double SPEED_INDEX = 2;
     static final DataParameter<Integer> TIMER = EntityDataManager.createKey(RocketPunchWatcher.class, DataSerializers.VARINT);
+    double knockbackSpeedIndex;
+    float damage;
     double dx;
     double dz;
-    int strength;
+    boolean ignoreArmor;
+    boolean healing;
+    boolean isFireDamage;
     PlayerEntity source;
     List<YUnchangedLivingEntity> watchedEntities ;
 
-    public RocketPunchWatcher(World worldIn, BlockPos pos, double dx, double dz, int strength, int timer, PlayerEntity source) {
-        super(EntityRegistry.rocket_punch_watcher.get(), worldIn);
-        setPosition(pos.getX(),pos.getY(),pos.getZ());
-        this.dx = dx;
-        this.dz = dz;
-        this.strength = strength;
-        dataManager.set(TIMER,timer);
-        this.source = source;
-        watchedEntities = new ArrayList<>();
-    }
 
     public RocketPunchWatcher(EntityType<? extends RocketPunchWatcher> entityTypeIn, World worldIn) {
         super(entityTypeIn, worldIn);
+    }
+
+    public RocketPunchWatcher(World worldIn, BlockPos pos, int timer, double knockbackSpeedIndex, float damage, double dx, double dz, boolean ignoreArmor, boolean healing, boolean isFireDamage, PlayerEntity source) {
+        super(EntityRegistry.ROCKET_PUNCH_WATCHER.get(), worldIn);
+        setPosition(pos.getX(),pos.getY(),pos.getZ());
+        dataManager.set(TIMER,timer);
+        this.knockbackSpeedIndex = knockbackSpeedIndex;
+        this.damage = damage;
+        this.dx = dx;
+        this.dz = dz;
+        this.source = source;
+        this.isFireDamage = isFireDamage;
+        this.healing = healing;
+        this.ignoreArmor = ignoreArmor;
+        watchedEntities = new ArrayList<>();
     }
 
     public void watch(LivingEntity livingEntity){
@@ -66,10 +75,23 @@ public class RocketPunchWatcher extends Entity {
                     List<YUnchangedLivingEntity> entitiesRemoveFromWatchList = new ArrayList<>();
                     for(YUnchangedLivingEntity entity:watchedEntities){
                         if(entity.livingEntity.collidedHorizontally){
-                            entity.livingEntity.attackEntityFrom(new RocketPunchOnWallDamageSource(source),strength*0.5f);
+                            DamageSource damageSource = new RocketPunchOnWallDamageSource(source);
+                            {
+                                if(ignoreArmor){
+                                    damageSource.setDamageBypassesArmor();
+                                    entity.livingEntity.attackEntityFrom(damageSource,damage+1);
+                                } else if(isFireDamage){
+                                    damageSource.setFireDamage();
+                                    entity.livingEntity.attackEntityFrom(damageSource,damage+1);
+                                } else if(healing){
+                                    entity.livingEntity.heal(damage+1);
+                                } else {
+                                    entity.livingEntity.attackEntityFrom(damageSource,damage+1);
+                                }
+                            }
                             entitiesRemoveFromWatchList.add(entity);
                         } else {
-                            entity.setMotion(dx * SPEED_INDEX,dz * SPEED_INDEX);
+                            entity.setMotion(dx * knockbackSpeedIndex,dz * knockbackSpeedIndex);
                         }
                     }
                     for(YUnchangedLivingEntity remove:entitiesRemoveFromWatchList){
@@ -103,20 +125,11 @@ public class RocketPunchWatcher extends Entity {
 
     @Override
     protected void readAdditional(CompoundNBT compound) {
-        watchedEntities = new ArrayList<>();
         source = null;
-        strength = compound.getInt("strength");
-        dataManager.set(TIMER,compound.getInt("timer"));
-        dx = compound.getDouble("dx");
-        dz = compound.getDouble("dz");
     }
 
     @Override
     protected void writeAdditional(CompoundNBT compound) {
-        compound.putInt("strength",strength);
-        compound.putInt("timer",dataManager.get(TIMER));
-        compound.putDouble("dx",dx);
-        compound.putDouble("dz",dz);
     }
 
     @Override

@@ -6,8 +6,11 @@ import love.marblegate.risinguppercut.damagesource.RisingUppercutDamageSource;
 import love.marblegate.risinguppercut.entity.watcher.RisingUppercutWatcher;
 import love.marblegate.risinguppercut.network.Networking;
 import love.marblegate.risinguppercut.network.PacketRocketPunchStatus;
+import love.marblegate.risinguppercut.registry.EnchantmentRegistry;
 import love.marblegate.risinguppercut.util.ModGroup;
 import love.marblegate.risinguppercut.util.RotationUtil;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.IVanishable;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -25,13 +28,11 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fml.network.PacketDistributor;
 
 import java.util.List;
+import java.util.Map;
 
 public class Gauntlet extends Item implements IVanishable {
 
-    public static class SkillConstants{
-        public static int ROCKET_PUNCH_MAX_STRENGTH = 20;
-        public static int RISING_UPPERCUT_CONTROL_TIME = 12;
-    }
+
 
     public Gauntlet() {
         super(new Properties()
@@ -45,24 +46,29 @@ public class Gauntlet extends Item implements IVanishable {
     public void onPlayerStoppedUsing(ItemStack stack, World worldIn, LivingEntity entityLiving, int timeLeft) {
         if (!worldIn.isRemote) {
             LazyOptional<IRocketPunchPlayerSkillRecord> rkp_cap = entityLiving.getCapability(RocketPunchPlayerSkillRecord.ROCKET_PUNCH_SKILL_RECORD);
-            final int capTimer = Math.min((getUseDuration(stack) - timeLeft), SkillConstants.ROCKET_PUNCH_MAX_STRENGTH);
+            final int capTimer = Math.min((getUseDuration(stack) - timeLeft), SkillData.getRocketPunchMaxChangeTime(stack));
             rkp_cap.ifPresent(
                     cap -> {
                         cap.setTimer(capTimer);
-                        cap.setStrength(capTimer);
+                        cap.setDamage(SkillData.getRocketPunchDamagePerTick(stack) * capTimer);
+                        cap.setSpeedIndex(SkillData.getRocketPunchSpeedIndex(stack));
+                        cap.setKnockbackIndex(SkillData.getRocketPunchKnockbackSpeedIndex(stack));
                         cap.setDirection(RotationUtil.getHorizentalLookVecX(entityLiving), RotationUtil.getHorizentalLookVecZ(entityLiving));
                     }
             );
             stack.damageItem(1, ((PlayerEntity) entityLiving), (entity) -> {
                 entity.sendBreakAnimation(EquipmentSlotType.MAINHAND);
             });
-            ((PlayerEntity) entityLiving).getCooldownTracker().setCooldown(this,40);
+            ((PlayerEntity) entityLiving).getCooldownTracker().setCooldown(this,SkillData.getRocketPunchCooldown(stack));
             //Sync to client
             Networking.INSTANCE.send(
                     PacketDistributor.PLAYER.with(
                             () -> (ServerPlayerEntity) entityLiving
                     ),
-                    new PacketRocketPunchStatus(capTimer, capTimer, RotationUtil.getHorizentalLookVecX(entityLiving), RotationUtil.getHorizentalLookVecZ(entityLiving)));
+                    new PacketRocketPunchStatus(capTimer, SkillData.getRocketPunchDamagePerTick(stack),
+                            SkillData.getRocketPunchSpeedIndex(stack),SkillData.getRocketPunchKnockbackSpeedIndex(stack),
+                            RotationUtil.getHorizentalLookVecX(entityLiving), RotationUtil.getHorizentalLookVecZ(entityLiving),
+                            SkillData.shouldIgnoreArmor(stack),SkillData.shouldHeal(stack),SkillData.shouldBeFireDamage(stack)));
         }
     }
 
@@ -80,10 +86,8 @@ public class Gauntlet extends Item implements IVanishable {
     public ActionResultType itemInteractionForEntity(ItemStack stack, PlayerEntity playerIn, LivingEntity target, Hand hand) {
         if (target.world.isRemote) return ActionResultType.PASS;
         else{
-            doRisingUppercut(playerIn.world,playerIn);
-            stack.damageItem(1, playerIn, (entity) -> {
-                entity.sendBreakAnimation(EquipmentSlotType.MAINHAND);
-            });
+            doRisingUppercut(playerIn.world,playerIn,stack);
+            stack.damageItem(1, playerIn, (entity) -> entity.sendBreakAnimation(EquipmentSlotType.MAINHAND));
             return ActionResultType.SUCCESS;
         }
     }
@@ -93,10 +97,8 @@ public class Gauntlet extends Item implements IVanishable {
         //Work for rising uppercut
         if(playerIn.isSneaking()){
             if(!worldIn.isRemote()){
-                doRisingUppercut(worldIn,playerIn);
-                itemstack.damageItem(1, playerIn, (entity) -> {
-                    entity.sendBreakAnimation(EquipmentSlotType.MAINHAND);
-                });
+                doRisingUppercut(worldIn,playerIn,itemstack);
+                itemstack.damageItem(1, playerIn, (entity) -> entity.sendBreakAnimation(EquipmentSlotType.MAINHAND));
             }
             return ActionResult.resultSuccess(itemstack);
         }
@@ -107,27 +109,30 @@ public class Gauntlet extends Item implements IVanishable {
         }
     }
 
-    void doRisingUppercut(World worldIn, PlayerEntity playerIn){
+    void doRisingUppercut(World worldIn, PlayerEntity playerIn,ItemStack itemStack){
         //Slightly enlarge player's hitbox
-        AxisAlignedBB collideBox = playerIn.getBoundingBox().expand(RotationUtil.getHorizentalLookVecX(playerIn)*3,0,RotationUtil.getHorizentalLookVecZ(playerIn)*3);
+        AxisAlignedBB collideBox = SkillData.shouldRisingUppercutAOE(itemStack)?
+                playerIn.getBoundingBox().grow(2,0,2):
+                playerIn.getBoundingBox().expand(RotationUtil.getHorizentalLookVecX(playerIn)*3,0,RotationUtil.getHorizentalLookVecZ(playerIn)*3);
+
 
         //Collision Detection
         List<LivingEntity> checks = playerIn.world
                 .getEntitiesWithinAABB(LivingEntity.class,collideBox);
         checks.remove(playerIn);
 
-        RisingUppercutWatcher watchEntity = new RisingUppercutWatcher(playerIn.world, playerIn.getPosition(),SkillConstants.RISING_UPPERCUT_CONTROL_TIME,playerIn);
+        RisingUppercutWatcher watchEntity = new RisingUppercutWatcher(playerIn.world, playerIn.getPosition(),playerIn,
+                SkillData.getRisingUppercutUpwardTime(itemStack), SkillData.getRisingUppercutFloatingTime(itemStack),
+                SkillData.getRisingUppercutSpeedIndex(itemStack), SkillData.getRisingUppercutDamage(itemStack),
+                SkillData.shouldIgnoreArmor(itemStack),SkillData.shouldHeal(itemStack),SkillData.shouldBeFireDamage(itemStack));
         if(!checks.isEmpty()){
             for(LivingEntity livingEntity:checks){
-                livingEntity.attackEntityFrom(new RisingUppercutDamageSource(playerIn),8);
                 watchEntity.watch(livingEntity);
             }
         }
         worldIn.addEntity(watchEntity);
-        playerIn.getCooldownTracker().setCooldown(this,40);
+        playerIn.getCooldownTracker().setCooldown(this,SkillData.getRisingUppercutCooldown(itemStack));
     }
-
-
 
     public int getUseDuration(ItemStack stack) {
         return 72000;
@@ -135,6 +140,99 @@ public class Gauntlet extends Item implements IVanishable {
 
     public UseAction getUseAction(ItemStack stack) {
         return UseAction.BOW;
+    }
+
+    static class SkillData {
+        public static int ROCKET_PUNCH_BASE_MAX_CHANGE_TIME = 20;
+        static float ROCKET_PUNCH_BASE_DAMAGE_PER_TICK = 0.5F;
+        static double ROCKET_PUNCH_BASE_SPEED_INDEX = 2;
+        static double ROCKET_PUNCH_BASE_KNOCKBACK_SPEED_INDEX = 2;
+        static int ROCKET_PUNCH_BASE_COOLDOWN = 120;
+        static int RISING_UPPERCUT_BASE_UPWARD_TIME = 8;
+        static int RISING_UPPERCUT_BASE_FLOATING_TIME = 4;
+        static float RISING_UPPERCUT_BASE_DAMAGE = 8;
+        static double RISING_UPPERCUT_BASE_SPEED_INDEX = 0.1;
+        static int RISING_UPPERCUT_BASE_COOLDOWN = 60;
+
+        public static int getRocketPunchMaxChangeTime(ItemStack itemStack) {
+            if(isItemEnchanted(itemStack, EnchantmentRegistry.KADOKAWA_KINETIC_OPTIMIZATION.get()))
+                return ROCKET_PUNCH_BASE_MAX_CHANGE_TIME + 4;
+            else if(isItemEnchanted(itemStack, EnchantmentRegistry.MARBLEGATE_KINETIC_OPTIMIZATION.get()))
+                return ROCKET_PUNCH_BASE_MAX_CHANGE_TIME + 12;
+            return ROCKET_PUNCH_BASE_MAX_CHANGE_TIME;
+        }
+
+        public static float getRocketPunchDamagePerTick(ItemStack itemStack) {
+            //No Enchantment Modifying This.
+            return ROCKET_PUNCH_BASE_DAMAGE_PER_TICK;
+        }
+
+        public static double getRocketPunchSpeedIndex(ItemStack itemStack) {
+            if(isItemEnchanted(itemStack, EnchantmentRegistry.KADOKAWA_CALCULATION_ASSIST.get()))
+                return ROCKET_PUNCH_BASE_SPEED_INDEX * (1 + 0.3);
+            return ROCKET_PUNCH_BASE_SPEED_INDEX;
+        }
+
+        public static double getRocketPunchKnockbackSpeedIndex(ItemStack itemStack) {
+            if(isItemEnchanted(itemStack, EnchantmentRegistry.KADOKAWA_KINETIC_OPTIMIZATION.get()))
+                return ROCKET_PUNCH_BASE_KNOCKBACK_SPEED_INDEX * (1 + 0.5);
+            return ROCKET_PUNCH_BASE_KNOCKBACK_SPEED_INDEX;
+        }
+
+        public static int getRocketPunchCooldown(ItemStack itemStack) {
+            if(isItemEnchanted(itemStack, EnchantmentRegistry.KADOKAWA_COOLING_ASSIST.get()))
+                return ROCKET_PUNCH_BASE_COOLDOWN - 20;
+            return ROCKET_PUNCH_BASE_COOLDOWN;
+        }
+
+        public static int getRisingUppercutUpwardTime(ItemStack itemStack) {
+            //No Enchantment Modifying This.
+            return RISING_UPPERCUT_BASE_UPWARD_TIME;
+        }
+
+        public static int getRisingUppercutFloatingTime(ItemStack itemStack) {
+            if(isItemEnchanted(itemStack, EnchantmentRegistry.MARBLEGATE_KINETIC_OPTIMIZATION.get()))
+                return RISING_UPPERCUT_BASE_FLOATING_TIME + 8;
+            return RISING_UPPERCUT_BASE_FLOATING_TIME;
+        }
+
+        public static float getRisingUppercutDamage(ItemStack itemStack) {
+            //No Enchantment Modifying This.
+            return RISING_UPPERCUT_BASE_DAMAGE;
+        }
+
+        public static double getRisingUppercutSpeedIndex(ItemStack itemStack) {
+            if(isItemEnchanted(itemStack, EnchantmentRegistry.MARBLEGATE_CALCULATION_ASSIST.get()))
+                return RISING_UPPERCUT_BASE_SPEED_INDEX * (1 + 0.3);
+            return RISING_UPPERCUT_BASE_SPEED_INDEX;
+        }
+
+        public static int getRisingUppercutCooldown(ItemStack itemStack) {
+            if(isItemEnchanted(itemStack, EnchantmentRegistry.MARBLEGATE_COOLING_ASSIST.get()))
+                return RISING_UPPERCUT_BASE_COOLDOWN - 20;
+            return RISING_UPPERCUT_BASE_COOLDOWN;
+        }
+
+        public static boolean shouldRisingUppercutAOE(ItemStack itemStack) {
+            return isItemEnchanted(itemStack, EnchantmentRegistry.MARBLEGATE_AOE_ATTACK.get());
+        }
+
+        public static boolean shouldIgnoreArmor(ItemStack itemStack) {
+            return isItemEnchanted(itemStack, EnchantmentRegistry.DRAGONBITE.get());
+        }
+
+        public static boolean shouldHeal(ItemStack itemStack) {
+            return isItemEnchanted(itemStack, EnchantmentRegistry.GUARDIAN_ANGEL.get());
+        }
+
+        public static boolean shouldBeFireDamage(ItemStack itemStack) {
+            return isItemEnchanted(itemStack, EnchantmentRegistry.FLAMEBURST.get());
+        }
+
+        static boolean isItemEnchanted(ItemStack itemStack, Enchantment enchantment){
+            Map<Enchantment, Integer> enchantList = EnchantmentHelper.getEnchantments(itemStack);
+            return enchantList.containsKey(enchantment);
+        }
     }
 
 }

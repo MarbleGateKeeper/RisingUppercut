@@ -13,7 +13,7 @@ public class KCalculationAssist extends Enchantment{
     @Override
     public boolean canApplyTogether(Enchantment p_77326_1_) {
         return super.canApplyTogether(p_77326_1_)
-                && p_77326_1_ != EnchantmentRegistry.marblegate_calculation_assist.get();
+                && p_77326_1_ != EnchantmentRegistry.MARBLEGATE_CALCULATION_ASSIST.get();
     }
 
     @Override

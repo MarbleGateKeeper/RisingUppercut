@@ -5,6 +5,8 @@ import love.marblegate.risinguppercut.capability.rocketpunch.playerskillrecord.R
 import love.marblegate.risinguppercut.damagesource.RocketPunchDamageSource;
 import love.marblegate.risinguppercut.entity.watcher.RocketPunchWatcher;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.TickEvent;
@@ -24,7 +26,7 @@ public class RocketPunchEventHandler {
                 LazyOptional<IRocketPunchPlayerSkillRecord> rkp_cap = event.player.getCapability(RocketPunchPlayerSkillRecord.ROCKET_PUNCH_SKILL_RECORD);
 
                 //Slightly enlarge player's hitbox
-                AxisAlignedBB collideBox = event.player.getBoundingBox().grow(0.25f,0,0.25f);
+                AxisAlignedBB collideBox = event.player.getBoundingBox().grow(0.5f,0,0.5f);
 
                 //Collision Detection
                 List<LivingEntity> checks = event.player.world
@@ -35,14 +37,49 @@ public class RocketPunchEventHandler {
                 if (!checks.isEmpty()) {
                     rkp_cap.ifPresent(
                             cap-> {
-                                //And rocket punch is active
+                                // And rocket punch is active
                                 if(cap.getTimer()>0){
-                                    //spawn an watchEntity to simulate rocket punch effect
-                                    RocketPunchWatcher watchEntity = new RocketPunchWatcher(event.player.world, event.player.getPosition(), cap.getDirectionX(),cap.getDirectionZ(),cap.getStrength(),cap.getStrength(),event.player);
+                                    // spawn an watchEntity to simulate rocket punch effect
+                                    RocketPunchWatcher watchEntity = new RocketPunchWatcher(event.player.world, event.player.getPosition(),cap.getTimer(),
+                                            cap.getKnockbackSpeedIndex(),cap.getDamage(), cap.getDirectionX(),cap.getDirectionZ(),
+                                            cap.ignoreArmor(),cap.healing(),cap.isFireDamage(),event.player);
                                     for(LivingEntity target: checks){
-                                        //Deal damage
-                                        target.attackEntityFrom(new RocketPunchDamageSource(event.player),cap.getStrength()*0.5f);
+                                        if(target instanceof PlayerEntity){
+                                            LazyOptional<IRocketPunchPlayerSkillRecord> another_cap = target.getCapability(RocketPunchPlayerSkillRecord.ROCKET_PUNCH_SKILL_RECORD);
+                                            another_cap.ifPresent( other_cap -> {
+                                                if(other_cap.getTimer()>0){
+                                                    // If two player who is using Rocket Punch Collide.
+                                                    // Stop them and apply knockback
+                                                    target.setMotion(0,0,0);
+                                                    target.markPositionDirty();
+                                                    target.velocityChanged = true;
+                                                    target.applyKnockback(3,-other_cap.getDirectionX(),-other_cap.getDirectionZ());
+                                                    other_cap.clear();
+                                                    event.player.setMotion(0,0,0);
+                                                    event.player.markPositionDirty();
+                                                    event.player.velocityChanged = true;
+                                                    target.applyKnockback(3,-cap.getDirectionX(),-cap.getDirectionZ());
+                                                    cap.clear();
+                                                    // Then do not run the following codes
+                                                    return;
 
+                                                }
+                                            });
+                                        }
+                                        // Deal damage
+                                        DamageSource damageSource = new RocketPunchDamageSource(event.player);
+                                        if(cap.isFireDamage()){
+                                            damageSource.setFireDamage();
+                                            target.setFire(3);
+                                            target.attackEntityFrom(damageSource,cap.getDamage());
+                                        } else if(cap.ignoreArmor()){
+                                            damageSource.setDamageBypassesArmor();
+                                            target.attackEntityFrom(damageSource,cap.getDamage());
+                                        } else if(cap.healing()){
+                                            target.heal(cap.getDamage());
+                                        } else {
+                                            target.attackEntityFrom(damageSource,cap.getDamage());
+                                        }
 
                                         if(target.isAlive()){
                                             watchEntity.watch(target);
@@ -50,7 +87,7 @@ public class RocketPunchEventHandler {
                                     }
                                     event.player.world.addEntity(watchEntity);
 
-                                    //Player stop moving and clear pocket punch status
+                                    // Player stop moving and clear pocket punch status
                                     event.player.setMotion(0,0,0);
                                     event.player.markPositionDirty();
                                     event.player.velocityChanged = true;
@@ -60,8 +97,8 @@ public class RocketPunchEventHandler {
                     );
                 }
 
-                //If rocket punch is active and player hit a wall
-                //stop player and clear rocket punch status
+                // If rocket punch is active and player hit a wall
+                // stop player and clear rocket punch status
                 if(event.player.collidedHorizontally){
                     rkp_cap.ifPresent(
                             cap-> {
@@ -76,14 +113,11 @@ public class RocketPunchEventHandler {
                 }
                 rkp_cap.ifPresent(
                         cap-> {
-                            //Deal with player rocket punch movement
+                            // Deal with player rocket punch movement
                             if(cap.getTimer()>0){
-                                //lock player view
-                                //TODO: Fix strange Glitch
-                                //event.player.lookAt(EntityAnchorArgument.Type.EYES,event.player.getPositionVec().add(cap.getDirectionX(),event.player.getEyeHeight(),cap.getDirectionZ()));
 
-                                //lock moving direction
-                                event.player.setMotion(cap.getDirectionX()*2f,0.1,cap.getDirectionZ()*2f);
+                                // lock moving direction
+                                event.player.setMotion(cap.getDirectionX()*cap.getSpeedIndex(),0.1,cap.getDirectionZ()*cap.getSpeedIndex());
 
                                 event.player.markPositionDirty();
                                 event.player.velocityChanged = true;

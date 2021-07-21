@@ -5,9 +5,29 @@ public interface IRocketPunchPlayerSkillRecord {
 
     int getTimer();
 
-    int getStrength();
+    void setDamage(float damage);
 
-    void setStrength(int strength);
+    float getDamage();
+
+    void setSpeedIndex(double index);
+
+    double getSpeedIndex();
+
+    void setIgnoreArmor(boolean ignoreArmor);
+
+    boolean ignoreArmor();
+
+    void setHealing(boolean healing);
+
+    boolean healing();
+
+    void setIsFireDamage(boolean isFireDamage);
+
+    boolean isFireDamage();
+
+    void setKnockbackIndex(double index);
+
+    double getKnockbackSpeedIndex();
 
     void setDirection(double dX, double dZ);
 

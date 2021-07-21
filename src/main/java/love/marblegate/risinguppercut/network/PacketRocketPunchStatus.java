@@ -12,30 +12,50 @@ import net.minecraftforge.fml.network.NetworkEvent;
 import java.util.function.Supplier;
 
 public class PacketRocketPunchStatus {
-    private final int timer;
-    private final int strength;
-    private final double dX;
-    private final double dZ;
+    final int timer;
+    final float damage;
+    final double index1;
+    final double index2;
+    final double dX;
+    final double dZ;
+    boolean ignoreArmor;
+    boolean healing;
+    boolean isFireDamage;
 
     public PacketRocketPunchStatus(PacketBuffer buffer) {
-        this.timer = buffer.readInt();
-        this.dX = buffer.readDouble();
-        this.dZ = buffer.readDouble();
-        this.strength = buffer.readInt();
+        timer = buffer.readInt();
+        damage = buffer.readFloat();
+        index1 = buffer.readDouble();
+        index2 = buffer.readDouble();
+        dX = buffer.readDouble();
+        dZ = buffer.readDouble();
+        ignoreArmor = buffer.readBoolean();
+        healing = buffer.readBoolean();
+        isFireDamage = buffer.readBoolean();
     }
 
-    public PacketRocketPunchStatus(int timer, int strength, double dX, double dZ) {
+    public PacketRocketPunchStatus(int timer, float damage, double index1, double index2, double dX, double dZ, boolean ignoreArmor, boolean healing, boolean isFireDamage) {
         this.timer = timer;
+        this.damage = damage;
+        this.index1 = index1;
+        this.index2 = index2;
         this.dX = dX;
         this.dZ = dZ;
-        this.strength = strength;
+        this.ignoreArmor = ignoreArmor;
+        this.healing = healing;
+        this.isFireDamage = isFireDamage;
     }
 
     public void toBytes(PacketBuffer buf) {
-        buf.writeInt(this.timer);
-        buf.writeDouble(this.dX);
-        buf.writeDouble(this.dZ);
-        buf.writeInt(this.strength);
+        buf.writeInt(timer);
+        buf.writeFloat(damage);
+        buf.writeDouble(index1);
+        buf.writeDouble(index2);
+        buf.writeDouble(dX);
+        buf.writeDouble(dZ);
+        buf.writeBoolean(ignoreArmor);
+        buf.writeBoolean(healing);
+        buf.writeBoolean(isFireDamage);
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
@@ -46,8 +66,13 @@ public class PacketRocketPunchStatus {
                 rkp_cap.ifPresent(
                         cap-> {
                             cap.setTimer(timer);
+                            cap.setDamage(damage);
+                            cap.setSpeedIndex(index1);
+                            cap.setKnockbackIndex(index2);
                             cap.setDirection(dX,dZ);
-                            cap.setStrength(strength);
+                            cap.setIgnoreArmor(ignoreArmor);
+                            cap.setHealing(healing);
+                            cap.setIsFireDamage(isFireDamage);
                         }
                 );
             }

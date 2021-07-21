@@ -13,8 +13,9 @@ public class GuardianAngel extends Enchantment{
     @Override
     public boolean canApplyTogether(Enchantment p_77326_1_) {
         return super.canApplyTogether(p_77326_1_)
-                && p_77326_1_ != EnchantmentRegistry.flameburst.get()
-                && p_77326_1_ != EnchantmentRegistry.dragonbite.get();
+                && p_77326_1_ != EnchantmentRegistry.FLAMEBURST.get()
+                && p_77326_1_ != EnchantmentRegistry.DRAGONBITE.get()
+                && p_77326_1_ != EnchantmentRegistry.MARBLEGATE_LOOTING.get();
     }
 
     @Override

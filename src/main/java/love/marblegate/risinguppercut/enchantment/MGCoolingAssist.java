@@ -13,7 +13,7 @@ public class MGCoolingAssist extends Enchantment{
     @Override
     public boolean canApplyTogether(Enchantment p_77326_1_) {
         return super.canApplyTogether(p_77326_1_)
-                && p_77326_1_ != EnchantmentRegistry.kadokawa_cooling_assist.get();
+                && p_77326_1_ != EnchantmentRegistry.KADOKAWA_COOLING_ASSIST.get();
     }
 
     @Override

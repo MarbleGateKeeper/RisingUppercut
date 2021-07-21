@@ -1,16 +1,27 @@
 package love.marblegate.risinguppercut.capability.rocketpunch.playerskillrecord;
 
 public class RocketPunchPlayerSkillRecordStandardImpl implements IRocketPunchPlayerSkillRecord {
-    private int timer;
-    private double dX;
-    private double dZ;
-    private int strength;
+    int timer;
+    double dX;
+    double dZ;
+    float damage;
+    double speedIndex;
+    double knockbackSpeedIndex;
+    boolean ignoreArmor;
+    boolean healing;
+    boolean isFireDamage;
+
 
     public RocketPunchPlayerSkillRecordStandardImpl(){
-        this.timer = 0;
-        this.dX = 0;
-        this.dZ = 0;
-        this.strength = 0;
+        timer = 0;
+        dX = 0;
+        dZ = 0;
+        damage = 0;
+        speedIndex = 0;
+        knockbackSpeedIndex = 0;
+        ignoreArmor = false;
+        healing = false;
+        isFireDamage = false;
     }
 
 
@@ -21,18 +32,69 @@ public class RocketPunchPlayerSkillRecordStandardImpl implements IRocketPunchPla
 
     @Override
     public int getTimer() {
-        return this.timer;
+        return timer;
     }
 
     @Override
-    public int getStrength() {
-        return this.strength;
+    public void setDamage(float damage) {
+        this.damage = damage;
     }
 
     @Override
-    public void setStrength(int strength) {
-        this.strength = strength;
+    public float getDamage() {
+        return damage;
     }
+
+    @Override
+    public void setSpeedIndex(double index) {
+        speedIndex = index;
+    }
+
+    @Override
+    public double getSpeedIndex() {
+        return speedIndex;
+    }
+
+    @Override
+    public void setIgnoreArmor(boolean ignoreArmor) {
+        this.ignoreArmor = ignoreArmor;
+    }
+
+    @Override
+    public boolean ignoreArmor() {
+        return ignoreArmor;
+    }
+
+    @Override
+    public void setHealing(boolean healing) {
+        this.healing = healing;
+    }
+
+    @Override
+    public boolean healing() {
+        return healing;
+    }
+
+    @Override
+    public void setIsFireDamage(boolean isFireDamage) {
+        this.isFireDamage = isFireDamage;
+    }
+
+    @Override
+    public boolean isFireDamage() {
+        return isFireDamage;
+    }
+
+    @Override
+    public void setKnockbackIndex(double index) {
+        knockbackSpeedIndex = index;
+    }
+
+    @Override
+    public double getKnockbackSpeedIndex() {
+        return knockbackSpeedIndex;
+    }
+
 
     @Override
     public void setDirection(double dX, double dZ) {
@@ -42,26 +104,31 @@ public class RocketPunchPlayerSkillRecordStandardImpl implements IRocketPunchPla
 
     @Override
     public double getDirectionX() {
-        return this.dX;
+        return dX;
     }
 
     @Override
     public double getDirectionZ() {
-        return this.dZ;
+        return dZ;
     }
 
     @Override
     public void decrease(){
-        this.timer -= 1;
+        timer -= 1;
         if(timer<0) timer = 0;
     }
 
 
     @Override
     public void clear() {
-        this.timer = 0;
-        this.dX = 0;
-        this.dZ = 0;
-        this.strength = 0;
+        timer = 0;
+        dX = 0;
+        dZ = 0;
+        damage = 0;
+        speedIndex = 0;
+        knockbackSpeedIndex = 0;
+        ignoreArmor = false;
+        healing = false;
+        isFireDamage = false;
     }
 }

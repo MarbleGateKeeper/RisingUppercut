@@ -13,8 +13,8 @@ public class FlameBurst extends Enchantment{
     @Override
     public boolean canApplyTogether(Enchantment p_77326_1_) {
         return super.canApplyTogether(p_77326_1_)
-                && p_77326_1_ != EnchantmentRegistry.dragonbite.get()
-                && p_77326_1_ != EnchantmentRegistry.guardian_angel.get();
+                && p_77326_1_ != EnchantmentRegistry.DRAGONBITE.get()
+                && p_77326_1_ != EnchantmentRegistry.GUARDIAN_ANGEL.get();
     }
 
     @Override

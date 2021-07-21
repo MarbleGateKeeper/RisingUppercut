@@ -11,7 +11,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 public class RendererRegistry {
     @SubscribeEvent
     public static void onClientSetUpEvent(FMLClientSetupEvent event) {
-        RenderingRegistry.registerEntityRenderingHandler(EntityRegistry.rocket_punch_watcher.get(), BlankRender::new);
-        RenderingRegistry.registerEntityRenderingHandler(EntityRegistry.rising_uppercut_watcher.get(), BlankRender::new);
+        RenderingRegistry.registerEntityRenderingHandler(EntityRegistry.ROCKET_PUNCH_WATCHER.get(), BlankRender::new);
+        RenderingRegistry.registerEntityRenderingHandler(EntityRegistry.RISING_UPPERCUT_WATCHER.get(), BlankRender::new);
     }
 }

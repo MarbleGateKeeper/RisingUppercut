@@ -13,6 +13,6 @@ public class ModGroup extends ItemGroup {
 
     @Override
     public ItemStack createIcon() {
-        return new ItemStack(ItemRegistry.gauntlet.get());
+        return new ItemStack(ItemRegistry.GAUNTLET.get());
     }
 }
