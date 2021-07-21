@@ -17,5 +17,6 @@
   "enchantment.rising_uppercut.kadokawa_cooling_assist": "Kadokawa™ Cooling Assist",
   "death.attack.rising_uppercut.rising_uppercut":"%1$s was killed by %2$s 's rising uppercut.",
   "death.attack.rising_uppercut.rocket_punch":"%1$s was doomed by %2$s 's punching.",
-  "death.attack.rising_uppercut.rocket_punch_on_wal":"%1$s was punched into wall by %2$s ."
+  "death.attack.rising_uppercut.rocket_punch_on_wal":"%1$s was punched into wall by %2$s .",
+  "itemGroup.rising_uppercut.all": "Rising Uppercut!"
 }

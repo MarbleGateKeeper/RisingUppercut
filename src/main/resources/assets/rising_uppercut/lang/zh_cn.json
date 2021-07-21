@@ -17,5 +17,6 @@
   "enchantment.rising_uppercut.kadokawa_cooling_assist": "烈制工业™冷却魔纹",
   "death.attack.rising_uppercut.rising_uppercut":"%2$s 一个上勾拳将 %1$s 送上了天。",
   "death.attack.rising_uppercut.rocket_punch":"%2$s 一拳将 %1$s 轰飞了。",
-  "death.attack.rising_uppercut.rocket_punch_on_wal":"%2$s 一拳将 %1$s 轰进了墙里。"
+  "death.attack.rising_uppercut.rocket_punch_on_wal":"%2$s 一拳将 %1$s 轰进了墙里。",
+  "itemGroup.rising_uppercut.all": "上勾拳！"
 }
