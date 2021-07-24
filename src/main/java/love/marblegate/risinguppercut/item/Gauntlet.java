@@ -54,6 +54,9 @@ public class Gauntlet extends Item implements IVanishable {
                         cap.setSpeedIndex(SkillData.getRocketPunchSpeedIndex(stack));
                         cap.setKnockbackIndex(SkillData.getRocketPunchKnockbackSpeedIndex(stack));
                         cap.setDirection(RotationUtil.getHorizentalLookVecX(entityLiving), RotationUtil.getHorizentalLookVecZ(entityLiving));
+                        cap.setHealing(SkillData.shouldHeal(stack));
+                        cap.setIgnoreArmor(SkillData.shouldIgnoreArmor(stack));
+                        cap.setIsFireDamage(SkillData.shouldBeFireDamage(stack));
                     }
             );
             stack.damageItem(1, ((PlayerEntity) entityLiving), (entity) -> {
