@@ -32,6 +32,7 @@ public class RocketPunchPlayerSkillRecord {
             compoundNBT.putBoolean("rkp_ignoreArmor",instance.ignoreArmor());
             compoundNBT.putBoolean("rkp_healing",instance.healing());
             compoundNBT.putBoolean("rkp_isFireDamage",instance.isFireDamage());
+            compoundNBT.putInt("rkp_shouldLoot",instance.shouldLoot());
             return compoundNBT;
         }
 
@@ -46,6 +47,7 @@ public class RocketPunchPlayerSkillRecord {
             boolean rkp_ignoreArmor = ((CompoundNBT)nbt).getBoolean("rkp_ignoreArmor");
             boolean rkp_healing = ((CompoundNBT)nbt).getBoolean("rkp_healing");
             boolean rkp_isFireDamage = ((CompoundNBT)nbt).getBoolean("rkp_isFireDamage");
+            int rkp_shouldLoot = ((CompoundNBT)nbt).getInt("rkp_shouldLoot");
             instance.setTimer(rkp_timer);
             instance.setDamage(rkp_damage);
             instance.setDirection(rkp_dx,rkp_dz);
@@ -54,6 +56,7 @@ public class RocketPunchPlayerSkillRecord {
             instance.setIsFireDamage(rkp_isFireDamage);
             instance.setHealing(rkp_healing);
             instance.setIgnoreArmor(rkp_ignoreArmor);
+            instance.setShouldLoot(rkp_shouldLoot);
         }
     }
 }

@@ -2,10 +2,7 @@ package love.marblegate.risinguppercut.item;
 
 import love.marblegate.risinguppercut.capability.rocketpunch.playerskillrecord.IRocketPunchPlayerSkillRecord;
 import love.marblegate.risinguppercut.capability.rocketpunch.playerskillrecord.RocketPunchPlayerSkillRecord;
-import love.marblegate.risinguppercut.damagesource.RisingUppercutDamageSource;
 import love.marblegate.risinguppercut.entity.watcher.RisingUppercutWatcher;
-import love.marblegate.risinguppercut.network.Networking;
-import love.marblegate.risinguppercut.network.PacketRocketPunchStatus;
 import love.marblegate.risinguppercut.registry.EnchantmentRegistry;
 import love.marblegate.risinguppercut.util.ModGroup;
 import love.marblegate.risinguppercut.util.RotationUtil;
@@ -14,7 +11,6 @@ import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.IVanishable;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -25,7 +21,6 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fml.network.PacketDistributor;
 
 import java.util.List;
 import java.util.Map;
@@ -57,6 +52,7 @@ public class Gauntlet extends Item implements IVanishable {
                         cap.setHealing(SkillData.shouldHeal(stack));
                         cap.setIgnoreArmor(SkillData.shouldIgnoreArmor(stack));
                         cap.setIsFireDamage(SkillData.shouldBeFireDamage(stack));
+                        cap.setShouldLoot(SkillData.shouldLoot(stack));
                     }
             );
             stack.damageItem(1, ((PlayerEntity) entityLiving), (entity) -> {
@@ -64,6 +60,8 @@ public class Gauntlet extends Item implements IVanishable {
             });
             ((PlayerEntity) entityLiving).getCooldownTracker().setCooldown(this,SkillData.getRocketPunchCooldown(stack));
             //Sync to client
+            /*
+            * it is not necessary now.
             Networking.INSTANCE.send(
                     PacketDistributor.PLAYER.with(
                             () -> (ServerPlayerEntity) entityLiving
@@ -71,7 +69,9 @@ public class Gauntlet extends Item implements IVanishable {
                     new PacketRocketPunchStatus(capTimer, SkillData.getRocketPunchDamagePerTick(stack),
                             SkillData.getRocketPunchSpeedIndex(stack),SkillData.getRocketPunchKnockbackSpeedIndex(stack),
                             RotationUtil.getHorizentalLookVecX(entityLiving), RotationUtil.getHorizentalLookVecZ(entityLiving),
-                            SkillData.shouldIgnoreArmor(stack),SkillData.shouldHeal(stack),SkillData.shouldBeFireDamage(stack)));
+                            SkillData.shouldIgnoreArmor(stack),SkillData.shouldHeal(stack),SkillData.shouldBeFireDamage(stack),SkillData.shouldLoot(stack)));
+
+             */
         }
     }
 
@@ -232,9 +232,18 @@ public class Gauntlet extends Item implements IVanishable {
             return isItemEnchanted(itemStack, EnchantmentRegistry.FLAMEBURST.get());
         }
 
+        public static int shouldLoot(ItemStack itemStack) {
+            return getItemEnchantedLevel(itemStack, EnchantmentRegistry.MARBLEGATE_LOOTING.get());
+        }
+
         static boolean isItemEnchanted(ItemStack itemStack, Enchantment enchantment){
             Map<Enchantment, Integer> enchantList = EnchantmentHelper.getEnchantments(itemStack);
             return enchantList.containsKey(enchantment);
+        }
+
+        static int getItemEnchantedLevel(ItemStack itemStack, Enchantment enchantment){
+            Map<Enchantment, Integer> enchantList = EnchantmentHelper.getEnchantments(itemStack);
+            return enchantList.getOrDefault(enchantment, 0);
         }
     }
 

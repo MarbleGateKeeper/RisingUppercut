@@ -29,6 +29,10 @@ public interface IRocketPunchPlayerSkillRecord {
 
     double getKnockbackSpeedIndex();
 
+    void setShouldLoot (int lootLevel);
+
+    int shouldLoot();
+
     void setDirection(double dX, double dZ);
 
     double getDirectionX();

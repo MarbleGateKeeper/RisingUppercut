@@ -21,6 +21,7 @@ public class PacketRocketPunchStatus {
     boolean ignoreArmor;
     boolean healing;
     boolean isFireDamage;
+    int shouldLoot;
 
     public PacketRocketPunchStatus(PacketBuffer buffer) {
         timer = buffer.readInt();
@@ -32,9 +33,10 @@ public class PacketRocketPunchStatus {
         ignoreArmor = buffer.readBoolean();
         healing = buffer.readBoolean();
         isFireDamage = buffer.readBoolean();
+        shouldLoot = buffer.readInt();
     }
 
-    public PacketRocketPunchStatus(int timer, float damage, double index1, double index2, double dX, double dZ, boolean ignoreArmor, boolean healing, boolean isFireDamage) {
+    public PacketRocketPunchStatus(int timer, float damage, double index1, double index2, double dX, double dZ, boolean ignoreArmor, boolean healing, boolean isFireDamage, int shouldLoot) {
         this.timer = timer;
         this.damage = damage;
         this.index1 = index1;
@@ -44,6 +46,7 @@ public class PacketRocketPunchStatus {
         this.ignoreArmor = ignoreArmor;
         this.healing = healing;
         this.isFireDamage = isFireDamage;
+        this.shouldLoot =  shouldLoot;
     }
 
     public void toBytes(PacketBuffer buf) {
@@ -56,6 +59,7 @@ public class PacketRocketPunchStatus {
         buf.writeBoolean(ignoreArmor);
         buf.writeBoolean(healing);
         buf.writeBoolean(isFireDamage);
+        buf.writeInt(shouldLoot);
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctx) {
@@ -73,6 +77,7 @@ public class PacketRocketPunchStatus {
                             cap.setIgnoreArmor(ignoreArmor);
                             cap.setHealing(healing);
                             cap.setIsFireDamage(isFireDamage);
+                            cap.setShouldLoot(shouldLoot);
                         }
                 );
             }

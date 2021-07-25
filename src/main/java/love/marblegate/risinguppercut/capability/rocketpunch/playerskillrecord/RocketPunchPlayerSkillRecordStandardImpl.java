@@ -10,6 +10,7 @@ public class RocketPunchPlayerSkillRecordStandardImpl implements IRocketPunchPla
     boolean ignoreArmor;
     boolean healing;
     boolean isFireDamage;
+    int shouldLoot;
 
 
     public RocketPunchPlayerSkillRecordStandardImpl(){
@@ -22,6 +23,7 @@ public class RocketPunchPlayerSkillRecordStandardImpl implements IRocketPunchPla
         ignoreArmor = false;
         healing = false;
         isFireDamage = false;
+        shouldLoot = 0;
     }
 
 
@@ -95,6 +97,16 @@ public class RocketPunchPlayerSkillRecordStandardImpl implements IRocketPunchPla
         return knockbackSpeedIndex;
     }
 
+    @Override
+    public void setShouldLoot(int shouldLoot) {
+        this.shouldLoot = shouldLoot;
+    }
+
+    @Override
+    public int shouldLoot() {
+        return shouldLoot;
+    }
+
 
     @Override
     public void setDirection(double dX, double dZ) {
@@ -130,5 +142,6 @@ public class RocketPunchPlayerSkillRecordStandardImpl implements IRocketPunchPla
         ignoreArmor = false;
         healing = false;
         isFireDamage = false;
+        shouldLoot = 0;
     }
 }
