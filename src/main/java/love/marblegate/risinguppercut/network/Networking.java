@@ -1,8 +1,11 @@
 package love.marblegate.risinguppercut.network;
 
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
+
+import java.util.Optional;
 
 
 public class Networking {
@@ -26,7 +29,8 @@ public class Networking {
                 PacketRocketPunchStatus.class,
                 PacketRocketPunchStatus::toBytes,
                 PacketRocketPunchStatus::new,
-                PacketRocketPunchStatus::handle
+                PacketRocketPunchStatus::handle,
+                Optional.of(NetworkDirection.PLAY_TO_CLIENT)
         );
     }
 }

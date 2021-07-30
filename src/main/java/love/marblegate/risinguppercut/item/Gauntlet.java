@@ -87,7 +87,7 @@ public class Gauntlet extends Item implements IVanishable {
 
     @Override
     public ActionResultType itemInteractionForEntity(ItemStack stack, PlayerEntity playerIn, LivingEntity target, Hand hand) {
-        if (target.world.isRemote) return ActionResultType.PASS;
+        if (target.world.isRemote || hand == Hand.OFF_HAND) return ActionResultType.PASS;
         else{
             doRisingUppercut(playerIn.world,playerIn,stack);
             stack.damageItem(1, playerIn, (entity) -> entity.sendBreakAnimation(EquipmentSlotType.MAINHAND));
@@ -96,20 +96,25 @@ public class Gauntlet extends Item implements IVanishable {
     }
 
     public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
-        ItemStack itemstack = playerIn.getHeldItem(handIn);
-        //Work for rising uppercut
-        if(playerIn.isSneaking()){
-            if(!worldIn.isRemote()){
-                doRisingUppercut(worldIn,playerIn,itemstack);
-                itemstack.damageItem(1, playerIn, (entity) -> entity.sendBreakAnimation(EquipmentSlotType.MAINHAND));
+        if(handIn==Hand.MAIN_HAND){
+            ItemStack itemstack = playerIn.getHeldItem(handIn);
+            //Work for rising uppercut
+            if(playerIn.isSneaking()){
+                if(!worldIn.isRemote()){
+                    doRisingUppercut(worldIn,playerIn,itemstack);
+                    itemstack.damageItem(1, playerIn, (entity) -> entity.sendBreakAnimation(EquipmentSlotType.MAINHAND));
+                }
+                return ActionResult.resultSuccess(itemstack);
             }
-            return ActionResult.resultSuccess(itemstack);
+            //Work for rocket punch
+            else{
+                playerIn.setActiveHand(handIn);
+                return ActionResult.resultConsume(itemstack);
+            }
+        } else {
+            return ActionResult.resultPass(playerIn.getHeldItemOffhand());
         }
-        //Work for rocket punch
-        else{
-            playerIn.setActiveHand(handIn);
-            return ActionResult.resultConsume(itemstack);
-        }
+
     }
 
     void doRisingUppercut(World worldIn, PlayerEntity playerIn,ItemStack itemStack){
