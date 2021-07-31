@@ -9,15 +9,15 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 public class EnchantmentRegistry {
     public static final DeferredRegister<Enchantment> ENCHANTMENT = DeferredRegister.create(ForgeRegistries.ENCHANTMENTS, "rising_uppercut");
-    public static final RegistryObject<Enchantment> MARBLEGATE_LOOTING = ENCHANTMENT.register("marblegate_looting", MGAOEAttack::new);
-    public static final RegistryObject<Enchantment> MARBLEGATE_AOE_ATTACK = ENCHANTMENT.register("marblegate_aoe_attack", MGAOEAttack::new);
+    public static final RegistryObject<Enchantment> MARBLEGATE_LOOTING = ENCHANTMENT.register("marblegate_looting", AOEAttack::new);
+    public static final RegistryObject<Enchantment> AOE_ATTACK = ENCHANTMENT.register("aoe_attack", AOEAttack::new);
     public static final RegistryObject<Enchantment> DRAGONBITE = ENCHANTMENT.register("dragonbite", Dragonbite::new);
     public static final RegistryObject<Enchantment> FLAMEBURST = ENCHANTMENT.register("flameburst", FlameBurst::new);
     public static final RegistryObject<Enchantment> GUARDIAN_ANGEL = ENCHANTMENT.register("guardian_angel", GuardianAngel::new);
     public static final RegistryObject<Enchantment> MARBLEGATE_KINETIC_OPTIMIZATION = ENCHANTMENT.register("marblegate_kinetic_optimization", MGKineticOptimization::new);
     public static final RegistryObject<Enchantment> KADOKAWA_KINETIC_OPTIMIZATION = ENCHANTMENT.register("kadokawa_kinetic_optimization", KKineticOptimization::new);
-    public static final RegistryObject<Enchantment> MARBLEGATE_CALCULATION_ASSIST = ENCHANTMENT.register("marblegate_calculation_assist", MGCalculationAssist::new);
-    public static final RegistryObject<Enchantment> KADOKAWA_CALCULATION_ASSIST = ENCHANTMENT.register("kadokawa_calculation_assist", KCalculationAssist::new);
-    public static final RegistryObject<Enchantment> MARBLEGATE_COOLING_ASSIST = ENCHANTMENT.register("marblegate_cooling_assist", MGCoolingAssist::new);
-    public static final RegistryObject<Enchantment> KADOKAWA_COOLING_ASSIST = ENCHANTMENT.register("kadokawa_cooling_assist", KCoolingAssist::new);
+    public static final RegistryObject<Enchantment> RISING_UPPERCUT_CALCULATION_ASSIST = ENCHANTMENT.register("rising_uppercut_calculation_assist", RisingUppercutCalculationAssist::new);
+    public static final RegistryObject<Enchantment> ROCKET_PUNCH_CALCULATION_ASSIST = ENCHANTMENT.register("rocket_punch_calculation_assist", RocketPunchCalculationAssist::new);
+    public static final RegistryObject<Enchantment> RISING_UPPERCUT_COOLING_ASSIST = ENCHANTMENT.register("rising_uppercut_cooling_assist", RisingUppercutCoolingAssist::new);
+    public static final RegistryObject<Enchantment> ROCKET_PUNCH_COOLING_ASSIST = ENCHANTMENT.register("rocket_punch_cooling_assist", RocketPunchCoolingAssist::new);
 }

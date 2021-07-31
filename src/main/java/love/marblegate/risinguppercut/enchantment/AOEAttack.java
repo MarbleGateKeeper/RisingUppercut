@@ -5,8 +5,8 @@ import love.marblegate.risinguppercut.util.CustomEnchantmentType;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.inventory.EquipmentSlotType;
 
-public class MGAOEAttack extends Enchantment{
-    public MGAOEAttack() {
+public class AOEAttack extends Enchantment{
+    public AOEAttack() {
         super(Rarity.VERY_RARE , CustomEnchantmentType.GAUNTLET, new EquipmentSlotType[]{EquipmentSlotType.MAINHAND});
     }
 

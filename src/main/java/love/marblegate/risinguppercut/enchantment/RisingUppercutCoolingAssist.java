@@ -5,15 +5,15 @@ import love.marblegate.risinguppercut.util.CustomEnchantmentType;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.inventory.EquipmentSlotType;
 
-public class MGCalculationAssist extends Enchantment{
-    public MGCalculationAssist() {
+public class RisingUppercutCoolingAssist extends Enchantment{
+    public RisingUppercutCoolingAssist() {
         super(Rarity.RARE , CustomEnchantmentType.GAUNTLET, new EquipmentSlotType[]{EquipmentSlotType.MAINHAND});
     }
 
     @Override
     public boolean canApplyTogether(Enchantment p_77326_1_) {
         return super.canApplyTogether(p_77326_1_)
-                && p_77326_1_ != EnchantmentRegistry.KADOKAWA_CALCULATION_ASSIST.get();
+                && p_77326_1_ != EnchantmentRegistry.ROCKET_PUNCH_COOLING_ASSIST.get();
     }
 
     @Override

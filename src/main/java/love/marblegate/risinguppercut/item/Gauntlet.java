@@ -176,7 +176,7 @@ public class Gauntlet extends Item implements IVanishable {
         }
 
         public static double getRocketPunchSpeedIndex(ItemStack itemStack) {
-            if(isItemEnchanted(itemStack, EnchantmentRegistry.KADOKAWA_CALCULATION_ASSIST.get()))
+            if(isItemEnchanted(itemStack, EnchantmentRegistry.ROCKET_PUNCH_CALCULATION_ASSIST.get()))
                 return ROCKET_PUNCH_BASE_SPEED_INDEX * (1 + 0.3);
             return ROCKET_PUNCH_BASE_SPEED_INDEX;
         }
@@ -188,7 +188,7 @@ public class Gauntlet extends Item implements IVanishable {
         }
 
         public static int getRocketPunchCooldown(ItemStack itemStack) {
-            if(isItemEnchanted(itemStack, EnchantmentRegistry.KADOKAWA_COOLING_ASSIST.get()))
+            if(isItemEnchanted(itemStack, EnchantmentRegistry.ROCKET_PUNCH_COOLING_ASSIST.get()))
                 return ROCKET_PUNCH_BASE_COOLDOWN - 20;
             return ROCKET_PUNCH_BASE_COOLDOWN;
         }
@@ -210,19 +210,19 @@ public class Gauntlet extends Item implements IVanishable {
         }
 
         public static double getRisingUppercutSpeedIndex(ItemStack itemStack) {
-            if(isItemEnchanted(itemStack, EnchantmentRegistry.MARBLEGATE_CALCULATION_ASSIST.get()))
+            if(isItemEnchanted(itemStack, EnchantmentRegistry.RISING_UPPERCUT_CALCULATION_ASSIST.get()))
                 return RISING_UPPERCUT_BASE_SPEED_INDEX * (1 + 0.3);
             return RISING_UPPERCUT_BASE_SPEED_INDEX;
         }
 
         public static int getRisingUppercutCooldown(ItemStack itemStack) {
-            if(isItemEnchanted(itemStack, EnchantmentRegistry.MARBLEGATE_COOLING_ASSIST.get()))
+            if(isItemEnchanted(itemStack, EnchantmentRegistry.RISING_UPPERCUT_COOLING_ASSIST.get()))
                 return RISING_UPPERCUT_BASE_COOLDOWN - 20;
             return RISING_UPPERCUT_BASE_COOLDOWN;
         }
 
         public static boolean shouldRisingUppercutAOE(ItemStack itemStack) {
-            return isItemEnchanted(itemStack, EnchantmentRegistry.MARBLEGATE_AOE_ATTACK.get());
+            return isItemEnchanted(itemStack, EnchantmentRegistry.AOE_ATTACK.get());
         }
 
         public static boolean shouldIgnoreArmor(ItemStack itemStack) {
