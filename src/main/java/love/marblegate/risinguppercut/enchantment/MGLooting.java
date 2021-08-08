@@ -1,7 +1,7 @@
 package love.marblegate.risinguppercut.enchantment;
 
 import love.marblegate.risinguppercut.registry.EnchantmentRegistry;
-import love.marblegate.risinguppercut.util.CustomEnchantmentType;
+import love.marblegate.risinguppercut.misc.CustomEnchantmentType;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.inventory.EquipmentSlotType;
 
