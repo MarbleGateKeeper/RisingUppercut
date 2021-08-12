@@ -1,13 +1,9 @@
-package love.marblegate.risinguppercut.util;
+package love.marblegate.risinguppercut.misc;
 
 import love.marblegate.risinguppercut.item.Gauntlet;
-import net.minecraft.block.Block;
 import net.minecraft.enchantment.EnchantmentType;
-import net.minecraft.enchantment.IVanishable;
-import net.minecraft.item.*;
 
 import static net.minecraft.enchantment.EnchantmentType.BREAKABLE;
-import static net.minecraft.enchantment.EnchantmentType.WEARABLE;
 
 public class CustomEnchantmentType {
     public static final EnchantmentType GAUNTLET = EnchantmentType.create("rising_uppercut:GAUNTLET", Item-> Item instanceof Gauntlet);

@@ -22,6 +22,7 @@ import java.util.List;
 
 public class RocketPunchWatcher extends Entity {
     static final DataParameter<Integer> TIMER = EntityDataManager.createKey(RocketPunchWatcher.class, DataSerializers.VARINT);
+    int totalTime;
     double knockbackSpeedIndex;
     float damage;
     double dx;
@@ -41,8 +42,9 @@ public class RocketPunchWatcher extends Entity {
         super(EntityRegistry.ROCKET_PUNCH_WATCHER.get(), worldIn);
         setPosition(pos.getX(),pos.getY(),pos.getZ());
         dataManager.set(TIMER,timer);
+        totalTime = timer;
         this.knockbackSpeedIndex = knockbackSpeedIndex;
-        this.damage = damage;
+        this.damage = damage + 1;
         this.dx = dx;
         this.dz = dz;
         this.source = source;
@@ -76,17 +78,19 @@ public class RocketPunchWatcher extends Entity {
                     for(YUnchangedLivingEntity entity:watchedEntities){
                         if(entity.livingEntity.collidedHorizontally){
                             DamageSource damageSource = new RocketPunchOnWallDamageSource(source);
+                            float realDamageApplied = damage;
+                            if(totalTime-temp<10) realDamageApplied*=2;
                             {
                                 if(ignoreArmor){
                                     damageSource.setDamageBypassesArmor();
-                                    entity.livingEntity.attackEntityFrom(damageSource,damage+1);
+                                    entity.livingEntity.attackEntityFrom(damageSource,realDamageApplied);
                                 } else if(isFireDamage){
                                     damageSource.setFireDamage();
-                                    entity.livingEntity.attackEntityFrom(damageSource,damage+1);
+                                    entity.livingEntity.attackEntityFrom(damageSource,realDamageApplied);
                                 } else if(healing){
-                                    entity.livingEntity.heal(damage+1);
+                                    entity.livingEntity.heal(damage);
                                 } else {
-                                    entity.livingEntity.attackEntityFrom(damageSource,damage+1);
+                                    entity.livingEntity.attackEntityFrom(damageSource,realDamageApplied);
                                 }
                             }
                             entitiesRemoveFromWatchList.add(entity);

@@ -1,4 +1,4 @@
-package love.marblegate.risinguppercut.util;
+package love.marblegate.risinguppercut.misc;
 
 import love.marblegate.risinguppercut.registry.ItemRegistry;
 import net.minecraft.item.ItemGroup;

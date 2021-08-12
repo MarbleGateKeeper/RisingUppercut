@@ -1,19 +1,19 @@
 package love.marblegate.risinguppercut.enchantment;
 
 import love.marblegate.risinguppercut.registry.EnchantmentRegistry;
-import love.marblegate.risinguppercut.util.CustomEnchantmentType;
+import love.marblegate.risinguppercut.misc.CustomEnchantmentType;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.inventory.EquipmentSlotType;
 
-public class KCoolingAssist extends Enchantment{
-    public KCoolingAssist() {
+public class RisingUppercutCoolingAssist extends Enchantment{
+    public RisingUppercutCoolingAssist() {
         super(Rarity.RARE , CustomEnchantmentType.GAUNTLET, new EquipmentSlotType[]{EquipmentSlotType.MAINHAND});
     }
 
     @Override
     public boolean canApplyTogether(Enchantment p_77326_1_) {
         return super.canApplyTogether(p_77326_1_)
-                && p_77326_1_ != EnchantmentRegistry.MARBLEGATE_COOLING_ASSIST.get();
+                && p_77326_1_ != EnchantmentRegistry.ROCKET_PUNCH_COOLING_ASSIST.get();
     }
 
     @Override

@@ -1,6 +1,6 @@
 package love.marblegate.risinguppercut.item;
 
-import love.marblegate.risinguppercut.util.ModGroup;
+import love.marblegate.risinguppercut.misc.ModGroup;
 import net.minecraft.item.Item;
 
 public class BaseComponent extends Item {

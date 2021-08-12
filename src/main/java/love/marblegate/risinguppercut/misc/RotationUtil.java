@@ -1,8 +1,7 @@
-package love.marblegate.risinguppercut.util;
+package love.marblegate.risinguppercut.misc;
 
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
 
 public class RotationUtil {
     public static double getHorizentalLookVecX(LivingEntity entity){
