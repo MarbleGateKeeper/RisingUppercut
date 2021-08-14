@@ -26,10 +26,10 @@ public class Networking {
         );
         INSTANCE.registerMessage(
                 nextID(),
-                PacketRocketPunchStatus.class,
-                PacketRocketPunchStatus::toBytes,
-                PacketRocketPunchStatus::new,
-                PacketRocketPunchStatus::handle,
+                RemoveEffectSyncToClientPacket.class,
+                RemoveEffectSyncToClientPacket::toBytes,
+                RemoveEffectSyncToClientPacket::new,
+                RemoveEffectSyncToClientPacket::handle,
                 Optional.of(NetworkDirection.PLAY_TO_CLIENT)
         );
     }

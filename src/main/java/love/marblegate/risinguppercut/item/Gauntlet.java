@@ -4,6 +4,7 @@ import love.marblegate.risinguppercut.capability.rocketpunch.playerskillrecord.I
 import love.marblegate.risinguppercut.capability.rocketpunch.playerskillrecord.RocketPunchPlayerSkillRecord;
 import love.marblegate.risinguppercut.entity.watcher.RisingUppercutWatcher;
 import love.marblegate.risinguppercut.misc.Configuration;
+import love.marblegate.risinguppercut.registry.EffectRegistry;
 import love.marblegate.risinguppercut.registry.EnchantmentRegistry;
 import love.marblegate.risinguppercut.misc.ModGroup;
 import love.marblegate.risinguppercut.misc.RotationUtil;
@@ -16,6 +17,7 @@ import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.UseAction;
+import net.minecraft.potion.EffectInstance;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
@@ -60,19 +62,6 @@ public class Gauntlet extends Item implements IVanishable {
                 entity.sendBreakAnimation(EquipmentSlotType.MAINHAND);
             });
             ((PlayerEntity) entityLiving).getCooldownTracker().setCooldown(this,SkillData.getRocketPunchCooldown(stack));
-            //Sync to client
-            /*
-            * it is not necessary now.
-            Networking.INSTANCE.send(
-                    PacketDistributor.PLAYER.with(
-                            () -> (ServerPlayerEntity) entityLiving
-                    ),
-                    new PacketRocketPunchStatus(capTimer, SkillData.getRocketPunchDamagePerTick(stack),
-                            SkillData.getRocketPunchSpeedIndex(stack),SkillData.getRocketPunchKnockbackSpeedIndex(stack),
-                            RotationUtil.getHorizentalLookVecX(entityLiving), RotationUtil.getHorizentalLookVecZ(entityLiving),
-                            SkillData.shouldIgnoreArmor(stack),SkillData.shouldHeal(stack),SkillData.shouldBeFireDamage(stack),SkillData.shouldLoot(stack)));
-
-             */
         }
     }
 
@@ -118,6 +107,7 @@ public class Gauntlet extends Item implements IVanishable {
 
     }
 
+    //Execute Rising Uppercut
     void doRisingUppercut(World worldIn, PlayerEntity playerIn,ItemStack itemStack){
         //Slightly enlarge player's hitbox
         AxisAlignedBB collideBox = SkillData.shouldRisingUppercutAOE(itemStack)?
@@ -140,6 +130,9 @@ public class Gauntlet extends Item implements IVanishable {
             }
         }
         worldIn.addEntity(watchEntity);
+        if(SkillData.shouldApplySoftLanding(itemStack)){
+            playerIn.addPotionEffect(new EffectInstance(EffectRegistry.SAFE_LANDING.get(),SkillData.getSoftLandingDefaultDuration(itemStack)));
+        }
         playerIn.getCooldownTracker().setCooldown(this,SkillData.getRisingUppercutCooldown(itemStack));
     }
 
@@ -152,74 +145,64 @@ public class Gauntlet extends Item implements IVanishable {
     }
 
     static class SkillData {
-        static int ROCKET_PUNCH_BASE_MAX_CHANGE_TIME = Configuration.RocketPunchConfig.MAX_CHARGE_TIME.get();
-        static float ROCKET_PUNCH_BASE_DAMAGE_PER_TICK = Configuration.RocketPunchConfig.DAMAGE.get().floatValue();
-        static double ROCKET_PUNCH_BASE_SPEED_INDEX = Configuration.RocketPunchConfig.MOVEMENT_SPEED_INDEX.get();
-        static double ROCKET_PUNCH_BASE_KNOCKBACK_SPEED_INDEX = Configuration.RocketPunchConfig.KNOCKBACK_SPEED_INDEX.get();
-        static int ROCKET_PUNCH_BASE_COOLDOWN = Configuration.RocketPunchConfig.COOLDOWN.get();
-        static int RISING_UPPERCUT_BASE_UPWARD_TIME = Configuration.RisingUppercutConfig.UPRISING_TIME.get();
-        static int RISING_UPPERCUT_BASE_FLOATING_TIME = Configuration.RisingUppercutConfig.FLOATING_TIME.get();
-        static float RISING_UPPERCUT_BASE_DAMAGE = Configuration.RisingUppercutConfig.DAMAGE.get().floatValue();
-        static double RISING_UPPERCUT_BASE_SPEED_INDEX = Configuration.RisingUppercutConfig.RISING_SPEED_INDEX.get();
-        static int RISING_UPPERCUT_BASE_COOLDOWN = Configuration.RisingUppercutConfig.COOLDOWN.get();
 
         public static int getRocketPunchMaxChangeTime(ItemStack itemStack) {
             if(isItemEnchanted(itemStack, EnchantmentRegistry.KADOKAWA_KINETIC_OPTIMIZATION.get()))
-                return ROCKET_PUNCH_BASE_MAX_CHANGE_TIME + 4;
+                return Configuration.RocketPunchConfig.MAX_CHARGE_TIME.get() + 4;
             else if(isItemEnchanted(itemStack, EnchantmentRegistry.MARBLEGATE_KINETIC_OPTIMIZATION.get()))
-                return ROCKET_PUNCH_BASE_MAX_CHANGE_TIME + 12;
-            return ROCKET_PUNCH_BASE_MAX_CHANGE_TIME;
+                return Configuration.RocketPunchConfig.MAX_CHARGE_TIME.get() + 12;
+            return Configuration.RocketPunchConfig.MAX_CHARGE_TIME.get();
         }
 
         public static float getRocketPunchDamagePerTick(ItemStack itemStack) {
             //No Enchantment Modifying This.
-            return ROCKET_PUNCH_BASE_DAMAGE_PER_TICK;
+            return Configuration.RocketPunchConfig.DAMAGE.get().floatValue();
         }
 
         public static double getRocketPunchSpeedIndex(ItemStack itemStack) {
             if(isItemEnchanted(itemStack, EnchantmentRegistry.ROCKET_PUNCH_CALCULATION_ASSIST.get()))
-                return ROCKET_PUNCH_BASE_SPEED_INDEX * (1 + 0.3);
-            return ROCKET_PUNCH_BASE_SPEED_INDEX;
+                return Configuration.RocketPunchConfig.MOVEMENT_SPEED_INDEX.get() * (1 + 0.3);
+            return Configuration.RocketPunchConfig.MOVEMENT_SPEED_INDEX.get();
         }
 
         public static double getRocketPunchKnockbackSpeedIndex(ItemStack itemStack) {
             if(isItemEnchanted(itemStack, EnchantmentRegistry.KADOKAWA_KINETIC_OPTIMIZATION.get()))
-                return ROCKET_PUNCH_BASE_KNOCKBACK_SPEED_INDEX * (1 + 0.5);
-            return ROCKET_PUNCH_BASE_KNOCKBACK_SPEED_INDEX;
+                return Configuration.RocketPunchConfig.KNOCKBACK_SPEED_INDEX.get() * (1 + 0.5);
+            return Configuration.RocketPunchConfig.KNOCKBACK_SPEED_INDEX.get();
         }
 
         public static int getRocketPunchCooldown(ItemStack itemStack) {
             if(isItemEnchanted(itemStack, EnchantmentRegistry.ROCKET_PUNCH_COOLING_ASSIST.get()))
-                return ROCKET_PUNCH_BASE_COOLDOWN - 20;
-            return ROCKET_PUNCH_BASE_COOLDOWN;
+                return Configuration.RocketPunchConfig.COOLDOWN.get() - 20;
+            return Configuration.RocketPunchConfig.COOLDOWN.get();
         }
 
         public static int getRisingUppercutUpwardTime(ItemStack itemStack) {
             //No Enchantment Modifying This.
-            return RISING_UPPERCUT_BASE_UPWARD_TIME;
+            return Configuration.RisingUppercutConfig.UPRISING_TIME.get();
         }
 
         public static int getRisingUppercutFloatingTime(ItemStack itemStack) {
             if(isItemEnchanted(itemStack, EnchantmentRegistry.MARBLEGATE_KINETIC_OPTIMIZATION.get()))
-                return RISING_UPPERCUT_BASE_FLOATING_TIME + 8;
-            return RISING_UPPERCUT_BASE_FLOATING_TIME;
+                return Configuration.RisingUppercutConfig.FLOATING_TIME.get() + 8;
+            return Configuration.RisingUppercutConfig.FLOATING_TIME.get();
         }
 
         public static float getRisingUppercutDamage(ItemStack itemStack) {
-            //No Enchantment Modifying This.
-            return RISING_UPPERCUT_BASE_DAMAGE;
+            //Nothing Modifying This.
+            return Configuration.RisingUppercutConfig.DAMAGE.get().floatValue();
         }
 
         public static double getRisingUppercutSpeedIndex(ItemStack itemStack) {
             if(isItemEnchanted(itemStack, EnchantmentRegistry.RISING_UPPERCUT_CALCULATION_ASSIST.get()))
-                return RISING_UPPERCUT_BASE_SPEED_INDEX * (1 + 0.3);
-            return RISING_UPPERCUT_BASE_SPEED_INDEX;
+                return Configuration.RisingUppercutConfig.RISING_SPEED_INDEX.get() * (1 + 0.3);
+            return Configuration.RisingUppercutConfig.RISING_SPEED_INDEX.get();
         }
 
         public static int getRisingUppercutCooldown(ItemStack itemStack) {
             if(isItemEnchanted(itemStack, EnchantmentRegistry.RISING_UPPERCUT_COOLING_ASSIST.get()))
-                return RISING_UPPERCUT_BASE_COOLDOWN - 20;
-            return RISING_UPPERCUT_BASE_COOLDOWN;
+                return Configuration.RisingUppercutConfig.COOLDOWN.get() - 20;
+            return Configuration.RisingUppercutConfig.COOLDOWN.get();
         }
 
         public static boolean shouldRisingUppercutAOE(ItemStack itemStack) {
@@ -240,6 +223,16 @@ public class Gauntlet extends Item implements IVanishable {
 
         public static int shouldLoot(ItemStack itemStack) {
             return getItemEnchantedLevel(itemStack, EnchantmentRegistry.MARBLEGATE_LOOTING.get());
+        }
+
+        public static boolean shouldApplySoftLanding(ItemStack itemStack){
+            if(Configuration.SafeLandingConfig.DO_NOT_REQUIRE_ENCHANTMENT.get()) return true;
+            else return isItemEnchanted(itemStack, EnchantmentRegistry.SOFTFALLING.get());
+        }
+
+        public static int getSoftLandingDefaultDuration(ItemStack itemStack){
+            //Nothing Modifying This.
+            return Configuration.SafeLandingConfig.DEFAULT_DURATION.get();
         }
 
         static boolean isItemEnchanted(ItemStack itemStack, Enchantment enchantment){

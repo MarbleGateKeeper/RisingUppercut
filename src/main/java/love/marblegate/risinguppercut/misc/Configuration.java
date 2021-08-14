@@ -19,7 +19,12 @@ public class Configuration {
         public static ForgeConfigSpec.IntValue COOLDOWN;
         public static ForgeConfigSpec.DoubleValue MOVEMENT_SPEED_INDEX;
         public static ForgeConfigSpec.DoubleValue KNOCKBACK_SPEED_INDEX;
+    }
 
+    public static class SafeLandingConfig{
+        public static ForgeConfigSpec.BooleanValue DO_NOT_REQUIRE_ENCHANTMENT;
+        public static ForgeConfigSpec.BooleanValue DISPOSABLE_EFFECT;
+        public static ForgeConfigSpec.IntValue DEFAULT_DURATION;
     }
 
 
@@ -39,6 +44,12 @@ public class Configuration {
         RocketPunchConfig.MAX_CHARGE_TIME = builder.comment("Max Charge Time of rocket punch. Its unit is tick.").defineInRange("MAX_CHARGE_TIME",20,1,10000);
         RocketPunchConfig.MOVEMENT_SPEED_INDEX = builder.comment("Index of player's movement speed when rocket punch is activated.","It's not recommended to alter this value greatly.").defineInRange("MOVEMENT_SPEED_INDEX",2,0.1,10);
         RocketPunchConfig.KNOCKBACK_SPEED_INDEX = builder.comment("Index of victim's movement speed when one is being knockbacked by rocket punch.","It's not recommended to alter this value greatly.").defineInRange("KNOCKBACK_SPEED_INDEX",2,0.1,10);
+        builder.pop();
+
+        builder.push("safe_landing");
+        SafeLandingConfig.DO_NOT_REQUIRE_ENCHANTMENT = builder.comment("If it's set to true, rising uppercut grants player Safe Landing effect by default.").define("DO_NOT_REQUIRE_ENCHANTMENT",false);
+        SafeLandingConfig.DISPOSABLE_EFFECT = builder.comment("Should Safe Landing effect invalidate once a falling damage is negated.").define("DISPOSABLE_EFFECT",false);
+        SafeLandingConfig.DEFAULT_DURATION = builder.comment("The default duration of Safe Landing effect granted by enchantment. Its unit is tick.").defineInRange("DEFAULT_DURATION",100,20,72000);
         builder.pop();
 
         MOD_CONFIG = builder.build();

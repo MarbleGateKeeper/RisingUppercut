@@ -14,6 +14,7 @@ public class EnchantmentRegistry {
     public static final RegistryObject<Enchantment> DRAGONBITE = ENCHANTMENT.register("dragonbite", Dragonbite::new);
     public static final RegistryObject<Enchantment> FLAMEBURST = ENCHANTMENT.register("flameburst", FlameBurst::new);
     public static final RegistryObject<Enchantment> GUARDIAN_ANGEL = ENCHANTMENT.register("guardian_angel", GuardianAngel::new);
+    public static final RegistryObject<Enchantment> SOFTFALLING = ENCHANTMENT.register("softfalling", SoftFalling::new);
     public static final RegistryObject<Enchantment> MARBLEGATE_KINETIC_OPTIMIZATION = ENCHANTMENT.register("marblegate_kinetic_optimization", MGKineticOptimization::new);
     public static final RegistryObject<Enchantment> KADOKAWA_KINETIC_OPTIMIZATION = ENCHANTMENT.register("kadokawa_kinetic_optimization", KKineticOptimization::new);
     public static final RegistryObject<Enchantment> RISING_UPPERCUT_CALCULATION_ASSIST = ENCHANTMENT.register("rising_uppercut_calculation_assist", RisingUppercutCalculationAssist::new);
