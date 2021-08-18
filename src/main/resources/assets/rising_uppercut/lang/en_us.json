@@ -1,9 +1,9 @@
 {
-  "item.rising_uppercut.gauntlet":"Kinetic Gauntlet",
-  "item.rising_uppercut.gauntlet_surface":"Gauntlet Surface",
-  "item.rising_uppercut.gauntlet_kinetic_core":"Gauntlet Kinetic Core",
-  "item.rising_uppercut.gauntlet_coordinate_drive":"Gauntlet Coordinate Drive",
-  "item.rising_uppercut.gauntlet_cooler":"Gauntlet Cooler",
+  "item.rising_uppercut.gauntlet": "Kinetic Gauntlet",
+  "item.rising_uppercut.gauntlet_surface": "Gauntlet Surface",
+  "item.rising_uppercut.gauntlet_kinetic_core": "Gauntlet Kinetic Core",
+  "item.rising_uppercut.gauntlet_coordinate_drive": "Gauntlet Coordinate Drive",
+  "item.rising_uppercut.gauntlet_cooler": "Gauntlet Cooler",
   "effect.rising_uppercut.safe_landing": "Safe Landing",
   "enchantment.rising_uppercut.marblegate_looting": "MarbleGate™ Looting",
   "enchantment.rising_uppercut.aoe_attack": "AOE Attack",
@@ -29,8 +29,8 @@
   "enchantment.rising_uppercut.rocket_punch_calculation_assist.desc": "Increases movement speed of rocket punch.",
   "enchantment.rising_uppercut.rising_uppercut_cooling_assist.desc": "Reduces cooldown time of rising uppercut.",
   "enchantment.rising_uppercut.rocket_punch_cooling_assist.desc": "Reduces cooldown time of rocket punch.",
-  "death.attack.rising_uppercut.rising_uppercut":"%1$s was killed by %2$s 's rising uppercut.",
-  "death.attack.rising_uppercut.rocket_punch":"%1$s was doomed by %2$s 's punching.",
-  "death.attack.rising_uppercut.rocket_punch_on_wal":"%1$s was punched into wall by %2$s .",
+  "death.attack.rising_uppercut.rising_uppercut": "%1$s was killed by %2$s 's rising uppercut.",
+  "death.attack.rising_uppercut.rocket_punch": "%1$s was doomed by %2$s 's punching.",
+  "death.attack.rising_uppercut.rocket_punch_on_wal": "%1$s was punched into wall by %2$s .",
   "itemGroup.rising_uppercut.all": "Rising Uppercut!"
 }

@@ -1,11 +1,11 @@
 package love.marblegate.risinguppercut;
 
 import love.marblegate.risinguppercut.misc.Configuration;
+import love.marblegate.risinguppercut.misc.CustomEnchantmentType;
 import love.marblegate.risinguppercut.registry.EffectRegistry;
 import love.marblegate.risinguppercut.registry.EnchantmentRegistry;
 import love.marblegate.risinguppercut.registry.EntityRegistry;
 import love.marblegate.risinguppercut.registry.ItemRegistry;
-import love.marblegate.risinguppercut.misc.CustomEnchantmentType;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
@@ -17,7 +17,7 @@ public class RisingUppercut {
     // - (high priority) Recipe System
     // - Particle Effect
     // - Per Enchantment Texture
-    public RisingUppercut(){
+    public RisingUppercut() {
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Configuration.MOD_CONFIG);
 
         ItemRegistry.ITEM.register(FMLJavaModLoadingContext.get().getModEventBus());

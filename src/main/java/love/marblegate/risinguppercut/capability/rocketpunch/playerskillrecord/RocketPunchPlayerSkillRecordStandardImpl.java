@@ -13,7 +13,7 @@ public class RocketPunchPlayerSkillRecordStandardImpl implements IRocketPunchPla
     int shouldLoot;
 
 
-    public RocketPunchPlayerSkillRecordStandardImpl(){
+    public RocketPunchPlayerSkillRecordStandardImpl() {
         timer = 0;
         dX = 0;
         dZ = 0;
@@ -125,9 +125,9 @@ public class RocketPunchPlayerSkillRecordStandardImpl implements IRocketPunchPla
     }
 
     @Override
-    public void decrease(){
+    public void decrease() {
         timer -= 1;
-        if(timer<0) timer = 0;
+        if (timer < 0) timer = 0;
     }
 
 

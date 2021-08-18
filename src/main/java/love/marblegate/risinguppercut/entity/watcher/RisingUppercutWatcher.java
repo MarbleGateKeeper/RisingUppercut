@@ -30,13 +30,13 @@ public class RisingUppercutWatcher extends Entity {
     boolean healing;
     boolean isFireDamage;
     PlayerEntity source; //Can be null
-    List<LivingEntity> watchedEntities ;
+    List<LivingEntity> watchedEntities;
 
     public RisingUppercutWatcher(World worldIn, BlockPos pos, PlayerEntity source, int upwardTime, int floatingTime, double speedIndex, float damage, boolean ignoreArmor, boolean healing, boolean isFireDamage) {
         super(EntityRegistry.ROCKET_PUNCH_WATCHER.get(), worldIn);
-        setPosition(pos.getX(),pos.getY(),pos.getZ());
-        dataManager.set(TIMER,upwardTime+floatingTime);
-        totalTime = upwardTime+floatingTime;
+        setPosition(pos.getX(), pos.getY(), pos.getZ());
+        dataManager.set(TIMER, upwardTime + floatingTime);
+        totalTime = upwardTime + floatingTime;
         this.source = source;
         this.floatingTime = floatingTime;
         this.speedIndex = speedIndex;
@@ -51,8 +51,8 @@ public class RisingUppercutWatcher extends Entity {
         super(entityTypeIn, worldIn);
     }
 
-    public void watch(LivingEntity livingEntity){
-        if(livingEntity != null){
+    public void watch(LivingEntity livingEntity) {
+        if (livingEntity != null) {
             watchedEntities.add(livingEntity);
         }
     }
@@ -61,60 +61,60 @@ public class RisingUppercutWatcher extends Entity {
     @Override
     public void tick() {
         super.tick();
-        if(!world.isRemote()){
+        if (!world.isRemote()) {
             int temp = dataManager.get(TIMER);
-            if(watchedEntities!=null&&source!=null){
-                if(!watchedEntities.isEmpty()){
-                    for(LivingEntity entity:watchedEntities){
-                        if(temp==totalTime-1){
+            if (watchedEntities != null && source != null) {
+                if (!watchedEntities.isEmpty()) {
+                    for (LivingEntity entity : watchedEntities) {
+                        if (temp == totalTime - 1) {
                             DamageSource damageSource = new RisingUppercutDamageSource(source);
-                            if(isFireDamage){
+                            if (isFireDamage) {
                                 damageSource.setFireDamage();
-                                entity.attackEntityFrom(damageSource,damage);
+                                entity.attackEntityFrom(damageSource, damage);
                                 entity.setFire(3);
-                            } else if(ignoreArmor) {
+                            } else if (ignoreArmor) {
                                 damageSource.setDamageBypassesArmor();
-                                entity.attackEntityFrom(damageSource,damage);
-                            } else if(healing) {
-                                System.out.print(entity.getHealth()+"->");
+                                entity.attackEntityFrom(damageSource, damage);
+                            } else if (healing) {
+                                System.out.print(entity.getHealth() + "->");
                                 entity.heal(damage);
-                                System.out.print(entity.getHealth()+"\n");
+                                System.out.print(entity.getHealth() + "\n");
                             } else {
-                                entity.attackEntityFrom(damageSource,damage);
+                                entity.attackEntityFrom(damageSource, damage);
                             }
                         }
-                        if(temp>floatingTime){
-                            moveVertically(entity,temp * speedIndex);
-                        } else if (temp>floatingTime/2) {
-                            moveVertically(entity,0.1);
+                        if (temp > floatingTime) {
+                            moveVertically(entity, temp * speedIndex);
+                        } else if (temp > floatingTime / 2) {
+                            moveVertically(entity, 0.1);
                         } else {
-                            moveVertically(entity,-0.1);
+                            moveVertically(entity, -0.1);
                         }
                     }
                 }
-                if(temp>floatingTime){
-                    moveVertically(source,temp * speedIndex);
-                } else if (temp>floatingTime/2) {
-                    moveVerticallyWithHorizonControl(source,0.1);
+                if (temp > floatingTime) {
+                    moveVertically(source, temp * speedIndex);
+                } else if (temp > floatingTime / 2) {
+                    moveVerticallyWithHorizonControl(source, 0.1);
                 } else {
-                    moveVerticallyWithHorizonControl(source,-0.1);
+                    moveVerticallyWithHorizonControl(source, -0.1);
                 }
-                if(temp - 1 == 0) remove();
-                else dataManager.set(TIMER,temp-1);
+                if (temp - 1 == 0) remove();
+                else dataManager.set(TIMER, temp - 1);
             } else {
                 remove();
             }
         }
     }
 
-    void moveVertically(LivingEntity livingEntity,double speed){
-        livingEntity.setMotion(0,speed,0);
+    void moveVertically(LivingEntity livingEntity, double speed) {
+        livingEntity.setMotion(0, speed, 0);
         livingEntity.markPositionDirty();
         livingEntity.velocityChanged = true;
     }
 
-    void moveVerticallyWithHorizonControl(LivingEntity livingEntity,double speed){
-        livingEntity.setMotion(livingEntity.getMotion().getX(),speed,livingEntity.getMotion().getZ());
+    void moveVerticallyWithHorizonControl(LivingEntity livingEntity, double speed) {
+        livingEntity.setMotion(livingEntity.getMotion().getX(), speed, livingEntity.getMotion().getZ());
         livingEntity.markPositionDirty();
         livingEntity.velocityChanged = true;
     }
@@ -127,13 +127,13 @@ public class RisingUppercutWatcher extends Entity {
 
     @Override
     protected void registerData() {
-        dataManager.register(TIMER,0);
+        dataManager.register(TIMER, 0);
     }
 
     @Override
     protected void readAdditional(CompoundNBT compound) {
         source = null;
-        dataManager.set(TIMER,0);
+        dataManager.set(TIMER, 0);
     }
 
     @Override

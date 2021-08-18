@@ -6,7 +6,7 @@ import net.minecraft.enchantment.EnchantmentType;
 import static net.minecraft.enchantment.EnchantmentType.BREAKABLE;
 
 public class CustomEnchantmentType {
-    public static final EnchantmentType GAUNTLET = EnchantmentType.create("rising_uppercut:GAUNTLET", Item-> Item instanceof Gauntlet);
+    public static final EnchantmentType GAUNTLET = EnchantmentType.create("rising_uppercut:GAUNTLET", Item -> Item instanceof Gauntlet);
 
     public static void addToItemGroup() {
         EnchantmentType[] GAUNTLET_TYPES = new EnchantmentType[ModGroup.INSTANCE.getRelevantEnchantmentTypes().length + 3];

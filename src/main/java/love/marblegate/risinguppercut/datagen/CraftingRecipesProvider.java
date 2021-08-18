@@ -22,11 +22,11 @@ public class CraftingRecipesProvider extends ForgeRecipeProvider {
                 .patternLine("ABA")
                 .patternLine("ACA")
                 .patternLine("DED")
-                .key('A',Items.IRON_BLOCK)
-                .key('B',ItemRegistry.GAUNTLET_SURFACE.get())
-                .key('C',ItemRegistry.GAUNTLET_KINETIC_CORE.get())
-                .key('D',ItemRegistry.GAUNTLET_COORDINATE_DRIVE.get())
-                .key('E',ItemRegistry.GAUNTLET_COOLER.get())
+                .key('A', Items.IRON_BLOCK)
+                .key('B', ItemRegistry.GAUNTLET_SURFACE.get())
+                .key('C', ItemRegistry.GAUNTLET_KINETIC_CORE.get())
+                .key('D', ItemRegistry.GAUNTLET_COORDINATE_DRIVE.get())
+                .key('E', ItemRegistry.GAUNTLET_COOLER.get())
                 .addCriterion("gauntlet_kinetic_core", InventoryChangeTrigger.Instance.forItems(ItemRegistry.GAUNTLET_KINETIC_CORE.get()))
                 .build(consumer);
 
@@ -34,9 +34,9 @@ public class CraftingRecipesProvider extends ForgeRecipeProvider {
                 .patternLine("AAA")
                 .patternLine("BCB")
                 .patternLine("BCB")
-                .key('A',Items.DIAMOND)
-                .key('B',Items.IRON_BLOCK)
-                .key('C',Items.CHAIN)
+                .key('A', Items.DIAMOND)
+                .key('B', Items.IRON_BLOCK)
+                .key('C', Items.CHAIN)
                 .addCriterion("diamond", InventoryChangeTrigger.Instance.forItems(Items.DIAMOND))
                 .build(consumer);
 
@@ -44,11 +44,11 @@ public class CraftingRecipesProvider extends ForgeRecipeProvider {
                 .patternLine("AAA")
                 .patternLine("BCB")
                 .patternLine("DED")
-                .key('A',Items.IRON_BLOCK)
-                .key('B',Items.PISTON)
-                .key('C',Items.SLIME_BLOCK)
-                .key('D',Items.REDSTONE_BLOCK)
-                .key('E',Items.STICKY_PISTON)
+                .key('A', Items.IRON_BLOCK)
+                .key('B', Items.PISTON)
+                .key('C', Items.SLIME_BLOCK)
+                .key('D', Items.REDSTONE_BLOCK)
+                .key('E', Items.STICKY_PISTON)
                 .addCriterion("piston", InventoryChangeTrigger.Instance.forItems(Items.PISTON))
                 .build(consumer);
 
@@ -56,8 +56,8 @@ public class CraftingRecipesProvider extends ForgeRecipeProvider {
                 .patternLine("ABA")
                 .patternLine("B B")
                 .patternLine("ABA")
-                .key('A',Items.REDSTONE_BLOCK)
-                .key('B',Items.ENDER_EYE)
+                .key('A', Items.REDSTONE_BLOCK)
+                .key('B', Items.ENDER_EYE)
                 .addCriterion("ender_eye", InventoryChangeTrigger.Instance.forItems(Items.ENDER_EYE))
                 .build(consumer);
 
@@ -65,9 +65,9 @@ public class CraftingRecipesProvider extends ForgeRecipeProvider {
                 .patternLine("A A")
                 .patternLine("ABA")
                 .patternLine("ACA")
-                .key('A',Items.IRON_BLOCK)
-                .key('B',Ingredient.fromItems(Items.ICE, Items.BLUE_ICE, Items.PACKED_ICE, Items.SNOW_BLOCK))
-                .key('C',Items.DISPENSER)
+                .key('A', Items.IRON_BLOCK)
+                .key('B', Ingredient.fromItems(Items.ICE, Items.BLUE_ICE, Items.PACKED_ICE, Items.SNOW_BLOCK))
+                .key('C', Items.DISPENSER)
                 .addCriterion("ice", InventoryChangeTrigger.Instance.forItems(Items.ICE))
                 .build(consumer);
 

@@ -31,7 +31,7 @@ public class RocketPunchWatcher extends Entity {
     boolean healing;
     boolean isFireDamage;
     PlayerEntity source;
-    List<YUnchangedLivingEntity> watchedEntities ;
+    List<YUnchangedLivingEntity> watchedEntities;
 
 
     public RocketPunchWatcher(EntityType<? extends RocketPunchWatcher> entityTypeIn, World worldIn) {
@@ -40,8 +40,8 @@ public class RocketPunchWatcher extends Entity {
 
     public RocketPunchWatcher(World worldIn, BlockPos pos, int timer, double knockbackSpeedIndex, float damage, double dx, double dz, boolean ignoreArmor, boolean healing, boolean isFireDamage, PlayerEntity source) {
         super(EntityRegistry.ROCKET_PUNCH_WATCHER.get(), worldIn);
-        setPosition(pos.getX(),pos.getY(),pos.getZ());
-        dataManager.set(TIMER,timer);
+        setPosition(pos.getX(), pos.getY(), pos.getZ());
+        dataManager.set(TIMER, timer);
         totalTime = timer;
         this.knockbackSpeedIndex = knockbackSpeedIndex;
         this.damage = damage + 1;
@@ -54,14 +54,14 @@ public class RocketPunchWatcher extends Entity {
         watchedEntities = new ArrayList<>();
     }
 
-    public void watch(LivingEntity livingEntity){
-        if(livingEntity != null){
+    public void watch(LivingEntity livingEntity) {
+        if (livingEntity != null) {
             watchedEntities.add(new YUnchangedLivingEntity(livingEntity));
         }
     }
 
-    public void removeFromWatchList(YUnchangedLivingEntity yUnchangedLivingEntity){
-        if(yUnchangedLivingEntity != null){
+    public void removeFromWatchList(YUnchangedLivingEntity yUnchangedLivingEntity) {
+        if (yUnchangedLivingEntity != null) {
             watchedEntities.remove(yUnchangedLivingEntity);
         }
     }
@@ -70,45 +70,44 @@ public class RocketPunchWatcher extends Entity {
     @Override
     public void tick() {
         super.tick();
-        if(!world.isRemote()){
+        if (!world.isRemote()) {
             int temp = dataManager.get(TIMER);
-            if(watchedEntities!=null&&source!=null){
-                if(!watchedEntities.isEmpty()){
+            if (watchedEntities != null && source != null) {
+                if (!watchedEntities.isEmpty()) {
                     List<YUnchangedLivingEntity> entitiesRemoveFromWatchList = new ArrayList<>();
-                    for(YUnchangedLivingEntity entity:watchedEntities){
-                        if(entity.livingEntity.collidedHorizontally){
+                    for (YUnchangedLivingEntity entity : watchedEntities) {
+                        if (entity.livingEntity.collidedHorizontally) {
                             DamageSource damageSource = new RocketPunchOnWallDamageSource(source);
                             float realDamageApplied = damage;
-                            if(totalTime-temp<10) realDamageApplied*=2;
+                            if (totalTime - temp < 10) realDamageApplied *= 2;
                             {
-                                if(ignoreArmor){
+                                if (ignoreArmor) {
                                     damageSource.setDamageBypassesArmor();
-                                    entity.livingEntity.attackEntityFrom(damageSource,realDamageApplied);
-                                } else if(isFireDamage){
+                                    entity.livingEntity.attackEntityFrom(damageSource, realDamageApplied);
+                                } else if (isFireDamage) {
                                     damageSource.setFireDamage();
-                                    entity.livingEntity.attackEntityFrom(damageSource,realDamageApplied);
-                                } else if(healing){
+                                    entity.livingEntity.attackEntityFrom(damageSource, realDamageApplied);
+                                } else if (healing) {
                                     entity.livingEntity.heal(damage);
                                 } else {
-                                    entity.livingEntity.attackEntityFrom(damageSource,realDamageApplied);
+                                    entity.livingEntity.attackEntityFrom(damageSource, realDamageApplied);
                                 }
                             }
                             entitiesRemoveFromWatchList.add(entity);
                         } else {
-                            entity.setMotion(dx * knockbackSpeedIndex,dz * knockbackSpeedIndex);
+                            entity.setMotion(dx * knockbackSpeedIndex, dz * knockbackSpeedIndex);
                         }
                     }
-                    for(YUnchangedLivingEntity remove:entitiesRemoveFromWatchList){
+                    for (YUnchangedLivingEntity remove : entitiesRemoveFromWatchList) {
                         removeFromWatchList(remove);
                     }
-                    if(temp - 1 == 0) {
+                    if (temp - 1 == 0) {
                         watchedEntities.clear();
                         remove();
-                    }
-                    else dataManager.set(TIMER,temp-1);
+                    } else dataManager.set(TIMER, temp - 1);
                 } else {
-                    if(temp - 1 == 0) remove();
-                    else dataManager.set(TIMER,temp-1);
+                    if (temp - 1 == 0) remove();
+                    else dataManager.set(TIMER, temp - 1);
                 }
             } else {
                 remove();
@@ -124,7 +123,7 @@ public class RocketPunchWatcher extends Entity {
 
     @Override
     protected void registerData() {
-        dataManager.register(TIMER,0);
+        dataManager.register(TIMER, 0);
     }
 
     @Override
@@ -141,7 +140,7 @@ public class RocketPunchWatcher extends Entity {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 
-    static class YUnchangedLivingEntity{
+    static class YUnchangedLivingEntity {
         LivingEntity livingEntity;
         double Y;
 
@@ -150,9 +149,9 @@ public class RocketPunchWatcher extends Entity {
             Y = livingEntity.getPosY();
         }
 
-        void setMotion(double X, double Z){
-            livingEntity.setMotion(X,0,Z);
-            livingEntity.setPosition(livingEntity.getPosX(),Y,livingEntity.getPosZ());
+        void setMotion(double X, double Z) {
+            livingEntity.setMotion(X, 0, Z);
+            livingEntity.setPosition(livingEntity.getPosX(), Y, livingEntity.getPosZ());
             livingEntity.markPositionDirty();
             livingEntity.velocityChanged = true;
         }

@@ -4,10 +4,10 @@ import love.marblegate.risinguppercut.capability.rocketpunch.playerskillrecord.I
 import love.marblegate.risinguppercut.capability.rocketpunch.playerskillrecord.RocketPunchPlayerSkillRecord;
 import love.marblegate.risinguppercut.entity.watcher.RisingUppercutWatcher;
 import love.marblegate.risinguppercut.misc.Configuration;
-import love.marblegate.risinguppercut.registry.EffectRegistry;
-import love.marblegate.risinguppercut.registry.EnchantmentRegistry;
 import love.marblegate.risinguppercut.misc.ModGroup;
 import love.marblegate.risinguppercut.misc.RotationUtil;
+import love.marblegate.risinguppercut.registry.EffectRegistry;
+import love.marblegate.risinguppercut.registry.EnchantmentRegistry;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.IVanishable;
@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 
 public class Gauntlet extends Item implements IVanishable {
-
 
 
     public Gauntlet() {
@@ -61,7 +60,7 @@ public class Gauntlet extends Item implements IVanishable {
             stack.damageItem(1, ((PlayerEntity) entityLiving), (entity) -> {
                 entity.sendBreakAnimation(EquipmentSlotType.MAINHAND);
             });
-            ((PlayerEntity) entityLiving).getCooldownTracker().setCooldown(this,SkillData.getRocketPunchCooldown(stack));
+            ((PlayerEntity) entityLiving).getCooldownTracker().setCooldown(this, SkillData.getRocketPunchCooldown(stack));
         }
     }
 
@@ -78,26 +77,26 @@ public class Gauntlet extends Item implements IVanishable {
     @Override
     public ActionResultType itemInteractionForEntity(ItemStack stack, PlayerEntity playerIn, LivingEntity target, Hand hand) {
         if (target.world.isRemote || hand == Hand.OFF_HAND) return ActionResultType.PASS;
-        else{
-            doRisingUppercut(playerIn.world,playerIn,stack);
+        else {
+            doRisingUppercut(playerIn.world, playerIn, stack);
             stack.damageItem(1, playerIn, (entity) -> entity.sendBreakAnimation(EquipmentSlotType.MAINHAND));
             return ActionResultType.SUCCESS;
         }
     }
 
     public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
-        if(handIn==Hand.MAIN_HAND){
+        if (handIn == Hand.MAIN_HAND) {
             ItemStack itemstack = playerIn.getHeldItem(handIn);
             //Work for rising uppercut
-            if(playerIn.isSneaking()){
-                if(!worldIn.isRemote()){
-                    doRisingUppercut(worldIn,playerIn,itemstack);
+            if (playerIn.isSneaking()) {
+                if (!worldIn.isRemote()) {
+                    doRisingUppercut(worldIn, playerIn, itemstack);
                     itemstack.damageItem(1, playerIn, (entity) -> entity.sendBreakAnimation(EquipmentSlotType.MAINHAND));
                 }
                 return ActionResult.resultSuccess(itemstack);
             }
             //Work for rocket punch
-            else{
+            else {
                 playerIn.setActiveHand(handIn);
                 return ActionResult.resultConsume(itemstack);
             }
@@ -108,32 +107,32 @@ public class Gauntlet extends Item implements IVanishable {
     }
 
     //Execute Rising Uppercut
-    void doRisingUppercut(World worldIn, PlayerEntity playerIn,ItemStack itemStack){
+    void doRisingUppercut(World worldIn, PlayerEntity playerIn, ItemStack itemStack) {
         //Slightly enlarge player's hitbox
-        AxisAlignedBB collideBox = SkillData.shouldRisingUppercutAOE(itemStack)?
-                playerIn.getBoundingBox().grow(2,0,2):
-                playerIn.getBoundingBox().expand(RotationUtil.getHorizentalLookVecX(playerIn)*3,0,RotationUtil.getHorizentalLookVecZ(playerIn)*3);
+        AxisAlignedBB collideBox = SkillData.shouldRisingUppercutAOE(itemStack) ?
+                playerIn.getBoundingBox().grow(2, 0, 2) :
+                playerIn.getBoundingBox().expand(RotationUtil.getHorizentalLookVecX(playerIn) * 3, 0, RotationUtil.getHorizentalLookVecZ(playerIn) * 3);
 
 
         //Collision Detection
         List<LivingEntity> checks = playerIn.world
-                .getEntitiesWithinAABB(LivingEntity.class,collideBox);
+                .getEntitiesWithinAABB(LivingEntity.class, collideBox);
         checks.remove(playerIn);
 
-        RisingUppercutWatcher watchEntity = new RisingUppercutWatcher(playerIn.world, playerIn.getPosition(),playerIn,
+        RisingUppercutWatcher watchEntity = new RisingUppercutWatcher(playerIn.world, playerIn.getPosition(), playerIn,
                 SkillData.getRisingUppercutUpwardTime(itemStack), SkillData.getRisingUppercutFloatingTime(itemStack),
                 SkillData.getRisingUppercutSpeedIndex(itemStack), SkillData.getRisingUppercutDamage(itemStack),
-                SkillData.shouldIgnoreArmor(itemStack),SkillData.shouldHeal(itemStack),SkillData.shouldBeFireDamage(itemStack));
-        if(!checks.isEmpty()){
-            for(LivingEntity livingEntity:checks){
+                SkillData.shouldIgnoreArmor(itemStack), SkillData.shouldHeal(itemStack), SkillData.shouldBeFireDamage(itemStack));
+        if (!checks.isEmpty()) {
+            for (LivingEntity livingEntity : checks) {
                 watchEntity.watch(livingEntity);
             }
         }
         worldIn.addEntity(watchEntity);
-        if(SkillData.shouldApplySoftLanding(itemStack)){
-            playerIn.addPotionEffect(new EffectInstance(EffectRegistry.SAFE_LANDING.get(),SkillData.getSoftLandingDefaultDuration(itemStack)));
+        if (SkillData.shouldApplySoftLanding(itemStack)) {
+            playerIn.addPotionEffect(new EffectInstance(EffectRegistry.SAFE_LANDING.get(), SkillData.getSoftLandingDefaultDuration(itemStack)));
         }
-        playerIn.getCooldownTracker().setCooldown(this,SkillData.getRisingUppercutCooldown(itemStack));
+        playerIn.getCooldownTracker().setCooldown(this, SkillData.getRisingUppercutCooldown(itemStack));
     }
 
     public int getUseDuration(ItemStack stack) {
@@ -147,9 +146,9 @@ public class Gauntlet extends Item implements IVanishable {
     static class SkillData {
 
         public static int getRocketPunchMaxChangeTime(ItemStack itemStack) {
-            if(isItemEnchanted(itemStack, EnchantmentRegistry.KADOKAWA_KINETIC_OPTIMIZATION.get()))
+            if (isItemEnchanted(itemStack, EnchantmentRegistry.KADOKAWA_KINETIC_OPTIMIZATION.get()))
                 return Configuration.RocketPunchConfig.MAX_CHARGE_TIME.get() + 4;
-            else if(isItemEnchanted(itemStack, EnchantmentRegistry.MARBLEGATE_KINETIC_OPTIMIZATION.get()))
+            else if (isItemEnchanted(itemStack, EnchantmentRegistry.MARBLEGATE_KINETIC_OPTIMIZATION.get()))
                 return Configuration.RocketPunchConfig.MAX_CHARGE_TIME.get() + 12;
             return Configuration.RocketPunchConfig.MAX_CHARGE_TIME.get();
         }
@@ -160,19 +159,19 @@ public class Gauntlet extends Item implements IVanishable {
         }
 
         public static double getRocketPunchSpeedIndex(ItemStack itemStack) {
-            if(isItemEnchanted(itemStack, EnchantmentRegistry.ROCKET_PUNCH_CALCULATION_ASSIST.get()))
+            if (isItemEnchanted(itemStack, EnchantmentRegistry.ROCKET_PUNCH_CALCULATION_ASSIST.get()))
                 return Configuration.RocketPunchConfig.MOVEMENT_SPEED_INDEX.get() * (1 + 0.3);
             return Configuration.RocketPunchConfig.MOVEMENT_SPEED_INDEX.get();
         }
 
         public static double getRocketPunchKnockbackSpeedIndex(ItemStack itemStack) {
-            if(isItemEnchanted(itemStack, EnchantmentRegistry.KADOKAWA_KINETIC_OPTIMIZATION.get()))
+            if (isItemEnchanted(itemStack, EnchantmentRegistry.KADOKAWA_KINETIC_OPTIMIZATION.get()))
                 return Configuration.RocketPunchConfig.KNOCKBACK_SPEED_INDEX.get() * (1 + 0.5);
             return Configuration.RocketPunchConfig.KNOCKBACK_SPEED_INDEX.get();
         }
 
         public static int getRocketPunchCooldown(ItemStack itemStack) {
-            if(isItemEnchanted(itemStack, EnchantmentRegistry.ROCKET_PUNCH_COOLING_ASSIST.get()))
+            if (isItemEnchanted(itemStack, EnchantmentRegistry.ROCKET_PUNCH_COOLING_ASSIST.get()))
                 return Configuration.RocketPunchConfig.COOLDOWN.get() - 20;
             return Configuration.RocketPunchConfig.COOLDOWN.get();
         }
@@ -183,7 +182,7 @@ public class Gauntlet extends Item implements IVanishable {
         }
 
         public static int getRisingUppercutFloatingTime(ItemStack itemStack) {
-            if(isItemEnchanted(itemStack, EnchantmentRegistry.MARBLEGATE_KINETIC_OPTIMIZATION.get()))
+            if (isItemEnchanted(itemStack, EnchantmentRegistry.MARBLEGATE_KINETIC_OPTIMIZATION.get()))
                 return Configuration.RisingUppercutConfig.FLOATING_TIME.get() + 8;
             return Configuration.RisingUppercutConfig.FLOATING_TIME.get();
         }
@@ -194,13 +193,13 @@ public class Gauntlet extends Item implements IVanishable {
         }
 
         public static double getRisingUppercutSpeedIndex(ItemStack itemStack) {
-            if(isItemEnchanted(itemStack, EnchantmentRegistry.RISING_UPPERCUT_CALCULATION_ASSIST.get()))
+            if (isItemEnchanted(itemStack, EnchantmentRegistry.RISING_UPPERCUT_CALCULATION_ASSIST.get()))
                 return Configuration.RisingUppercutConfig.RISING_SPEED_INDEX.get() * (1 + 0.3);
             return Configuration.RisingUppercutConfig.RISING_SPEED_INDEX.get();
         }
 
         public static int getRisingUppercutCooldown(ItemStack itemStack) {
-            if(isItemEnchanted(itemStack, EnchantmentRegistry.RISING_UPPERCUT_COOLING_ASSIST.get()))
+            if (isItemEnchanted(itemStack, EnchantmentRegistry.RISING_UPPERCUT_COOLING_ASSIST.get()))
                 return Configuration.RisingUppercutConfig.COOLDOWN.get() - 20;
             return Configuration.RisingUppercutConfig.COOLDOWN.get();
         }
@@ -225,22 +224,22 @@ public class Gauntlet extends Item implements IVanishable {
             return getItemEnchantedLevel(itemStack, EnchantmentRegistry.MARBLEGATE_LOOTING.get());
         }
 
-        public static boolean shouldApplySoftLanding(ItemStack itemStack){
-            if(Configuration.SafeLandingConfig.DO_NOT_REQUIRE_ENCHANTMENT.get()) return true;
+        public static boolean shouldApplySoftLanding(ItemStack itemStack) {
+            if (Configuration.SafeLandingConfig.DO_NOT_REQUIRE_ENCHANTMENT.get()) return true;
             else return isItemEnchanted(itemStack, EnchantmentRegistry.SOFTFALLING.get());
         }
 
-        public static int getSoftLandingDefaultDuration(ItemStack itemStack){
+        public static int getSoftLandingDefaultDuration(ItemStack itemStack) {
             //Nothing Modifying This.
             return Configuration.SafeLandingConfig.DEFAULT_DURATION.get();
         }
 
-        static boolean isItemEnchanted(ItemStack itemStack, Enchantment enchantment){
+        static boolean isItemEnchanted(ItemStack itemStack, Enchantment enchantment) {
             Map<Enchantment, Integer> enchantList = EnchantmentHelper.getEnchantments(itemStack);
             return enchantList.containsKey(enchantment);
         }
 
-        static int getItemEnchantedLevel(ItemStack itemStack, Enchantment enchantment){
+        static int getItemEnchantedLevel(ItemStack itemStack, Enchantment enchantment) {
             Map<Enchantment, Integer> enchantList = EnchantmentHelper.getEnchantments(itemStack);
             return enchantList.getOrDefault(enchantment, 0);
         }

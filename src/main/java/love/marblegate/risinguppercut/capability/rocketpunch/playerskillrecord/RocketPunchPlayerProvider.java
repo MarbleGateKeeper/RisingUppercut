@@ -16,10 +16,9 @@ public class RocketPunchPlayerProvider implements ICapabilitySerializable<Compou
     @Nonnull
     @Override
     public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
-        if(cap == RocketPunchPlayerSkillRecord.ROCKET_PUNCH_SKILL_RECORD){
+        if (cap == RocketPunchPlayerSkillRecord.ROCKET_PUNCH_SKILL_RECORD) {
             return impOptional.cast();
-        }
-        else return LazyOptional.empty();
+        } else return LazyOptional.empty();
     }
 
     @Override

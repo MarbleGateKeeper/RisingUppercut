@@ -1,9 +1,9 @@
 {
-  "item.rising_uppercut.gauntlet":"动能拳套",
-  "item.rising_uppercut.gauntlet_surface":"接触面",
-  "item.rising_uppercut.gauntlet_kinetic_core":"动能转换器",
-  "item.rising_uppercut.gauntlet_coordinate_drive":"坐标驱动器",
-  "item.rising_uppercut.gauntlet_cooler":"冷却器",
+  "item.rising_uppercut.gauntlet": "动能拳套",
+  "item.rising_uppercut.gauntlet_surface": "接触面",
+  "item.rising_uppercut.gauntlet_kinetic_core": "动能转换器",
+  "item.rising_uppercut.gauntlet_coordinate_drive": "坐标驱动器",
+  "item.rising_uppercut.gauntlet_cooler": "冷却器",
   "effect.rising_uppercut.safe_landing": "安全降落",
   "enchantment.rising_uppercut.marblegate_looting": "纯白之门™ 掠夺魔纹",
   "enchantment.rising_uppercut.aoe_attack": "全向攻击魔纹",
@@ -29,8 +29,8 @@
   "enchantment.rising_uppercut.rocket_punch_calculation_assist.desc": "增加火箭重拳移动速度。",
   "enchantment.rising_uppercut.rising_uppercut_cooling_assist.desc": "缩减上勾拳冷却时间。",
   "enchantment.rising_uppercut.rocket_punch_cooling_assist.desc": "缩减火箭重拳冷却时间。",
-  "death.attack.rising_uppercut.rising_uppercut":"%2$s 一个上勾拳将 %1$s 送上了天。",
-  "death.attack.rising_uppercut.rocket_punch":"%2$s 一拳将 %1$s 轰飞了。",
-  "death.attack.rising_uppercut.rocket_punch_on_wal":"%2$s 一拳将 %1$s 轰进了墙里。",
+  "death.attack.rising_uppercut.rising_uppercut": "%2$s 一个上勾拳将 %1$s 送上了天。",
+  "death.attack.rising_uppercut.rocket_punch": "%2$s 一拳将 %1$s 轰飞了。",
+  "death.attack.rising_uppercut.rocket_punch_on_wal": "%2$s 一拳将 %1$s 轰进了墙里。",
   "itemGroup.rising_uppercut.all": "上勾拳！"
 }

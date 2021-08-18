@@ -1,13 +1,13 @@
 package love.marblegate.risinguppercut.enchantment;
 
-import love.marblegate.risinguppercut.registry.EnchantmentRegistry;
 import love.marblegate.risinguppercut.misc.CustomEnchantmentType;
+import love.marblegate.risinguppercut.registry.EnchantmentRegistry;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.inventory.EquipmentSlotType;
 
-public class RisingUppercutCoolingAssist extends Enchantment{
+public class RisingUppercutCoolingAssist extends Enchantment {
     public RisingUppercutCoolingAssist() {
-        super(Rarity.RARE , CustomEnchantmentType.GAUNTLET, new EquipmentSlotType[]{EquipmentSlotType.MAINHAND});
+        super(Rarity.RARE, CustomEnchantmentType.GAUNTLET, new EquipmentSlotType[]{EquipmentSlotType.MAINHAND});
     }
 
     @Override
