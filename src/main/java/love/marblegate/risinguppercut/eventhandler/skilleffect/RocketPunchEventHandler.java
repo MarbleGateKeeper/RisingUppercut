@@ -75,8 +75,6 @@ public class RocketPunchEventHandler {
                                         // Deal damage
                                         DamageSource damageSource = new RocketPunchDamageSource(event.player);
                                         if (cap.shouldLoot() > 0) {
-                                            //TODO: Use custom recipe in the future
-                                            // - REALLY F**KING LOW EFFICIENCY HERE
                                             dropLoot(target, DamageSource.causePlayerDamage(event.player), true, event.player);
                                         }
                                         if (cap.isFireDamage()) {
@@ -141,7 +139,6 @@ public class RocketPunchEventHandler {
         }
     }
 
-    //FIXME TEMPORARY USAGE ONLY
     static void dropLoot(LivingEntity livingEntity, DamageSource damageSourceIn, boolean attackedRecently, PlayerEntity playerEntity) {
         ResourceLocation resourcelocation = livingEntity.getLootTableResourceLocation();
         LootTable loottable = livingEntity.world.getServer().getLootTableManager().getLootTableFromLocation(resourcelocation);

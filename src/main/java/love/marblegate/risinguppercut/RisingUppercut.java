@@ -13,10 +13,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 @Mod("rising_uppercut")
 public class RisingUppercut {
-    //TODO
-    // - (high priority) Recipe System
-    // - Particle Effect
-    // - Per Enchantment Texture
+
     public RisingUppercut() {
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Configuration.MOD_CONFIG);
 

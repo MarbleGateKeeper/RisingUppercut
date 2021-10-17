@@ -27,7 +27,6 @@ public class Configuration {
         public static ForgeConfigSpec.IntValue DEFAULT_DURATION;
     }
 
-
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
         builder.push("rising_uppercut");
