@@ -4,16 +4,10 @@ import love.marblegate.risinguppercut.capability.rocketpunch.playerskillrecord.I
 import love.marblegate.risinguppercut.capability.rocketpunch.playerskillrecord.RocketPunchPlayerSkillRecord;
 import love.marblegate.risinguppercut.damagesource.RocketPunchDamageSource;
 import love.marblegate.risinguppercut.entity.watcher.RocketPunchWatcher;
+import love.marblegate.risinguppercut.misc.LootUtil;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.loot.LootContext;
-import net.minecraft.loot.LootParameterSets;
-import net.minecraft.loot.LootParameters;
-import net.minecraft.loot.LootTable;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -46,48 +40,25 @@ public class RocketPunchEventHandler {
                                 // And rocket punch is active
                                 if (cap.getTimer() > 0) {
                                     // spawn an watchEntity to simulate rocket punch effect
-                                    RocketPunchWatcher watchEntity = new RocketPunchWatcher(event.player.world, event.player.getPosition(), cap.getTimer(),
-                                            cap.getKnockbackSpeedIndex(), cap.getDamage(), cap.getDirectionX(), cap.getDirectionZ(),
-                                            cap.ignoreArmor(), cap.healing(), cap.isFireDamage(), event.player);
+                                    RocketPunchWatcher watchEntity = new RocketPunchWatcher(event.player.world, event.player.getPosition(), cap.getTimer(), cap.getEffectiveChargeTime(),
+                                            cap.getKnockbackSpeedIndex(), cap.getDamagePerEffectiveCharge(), cap.getDirectionX(), cap.getDirectionZ(), cap.ignoreArmor(), cap.healing(), cap.isFireDamage(), event.player);
                                     for (LivingEntity target : checks) {
-                                        if (target instanceof PlayerEntity) {
-                                            LazyOptional<IRocketPunchPlayerSkillRecord> another_cap = target.getCapability(RocketPunchPlayerSkillRecord.ROCKET_PUNCH_SKILL_RECORD);
-                                            another_cap.ifPresent(other_cap -> {
-                                                if (other_cap.getTimer() > 0) {
-                                                    // If two player who is using Rocket Punch Collide.
-                                                    // Stop them and apply knockback
-                                                    target.setMotion(0, 0, 0);
-                                                    target.markPositionDirty();
-                                                    target.velocityChanged = true;
-                                                    target.applyKnockback(3, -other_cap.getDirectionX(), -other_cap.getDirectionZ());
-                                                    other_cap.clear();
-                                                    event.player.setMotion(0, 0, 0);
-                                                    event.player.markPositionDirty();
-                                                    event.player.velocityChanged = true;
-                                                    target.applyKnockback(3, -cap.getDirectionX(), -cap.getDirectionZ());
-                                                    cap.clear();
-                                                    // Then do not run the following codes
-                                                    return;
-
-                                                }
-                                            });
-                                        }
                                         // Deal damage
                                         DamageSource damageSource = new RocketPunchDamageSource(event.player);
                                         if (cap.shouldLoot() > 0) {
-                                            dropLoot(target, DamageSource.causePlayerDamage(event.player), true, event.player);
+                                            LootUtil.dropLoot(target, DamageSource.causePlayerDamage(event.player), true, event.player);
                                         }
                                         if (cap.isFireDamage()) {
                                             damageSource.setFireDamage();
                                             target.setFire(3);
-                                            target.attackEntityFrom(damageSource, cap.getDamage());
+                                            target.attackEntityFrom(damageSource, cap.getDamagePerEffectiveCharge() * cap.getEffectiveChargeTime());
                                         } else if (cap.ignoreArmor()) {
                                             damageSource.setDamageBypassesArmor();
-                                            target.attackEntityFrom(damageSource, cap.getDamage());
+                                            target.attackEntityFrom(damageSource, cap.getDamagePerEffectiveCharge() * cap.getEffectiveChargeTime());
                                         } else if (cap.healing()) {
-                                            target.heal(cap.getDamage());
+                                            target.heal(cap.getDamagePerEffectiveCharge()  * cap.getEffectiveChargeTime());
                                         } else {
-                                            target.attackEntityFrom(damageSource, cap.getDamage());
+                                            target.attackEntityFrom(damageSource, cap.getDamagePerEffectiveCharge() * cap.getEffectiveChargeTime());
                                         }
 
                                         if (target.isAlive()) {
@@ -137,21 +108,5 @@ public class RocketPunchEventHandler {
                 );
             }
         }
-    }
-
-    static void dropLoot(LivingEntity livingEntity, DamageSource damageSourceIn, boolean attackedRecently, PlayerEntity playerEntity) {
-        ResourceLocation resourcelocation = livingEntity.getLootTableResourceLocation();
-        LootTable loottable = livingEntity.world.getServer().getLootTableManager().getLootTableFromLocation(resourcelocation);
-        LootContext.Builder lootcontext$builder = getLootContextBuilder(livingEntity, attackedRecently, damageSourceIn, playerEntity);
-        LootContext ctx = lootcontext$builder.build(LootParameterSets.ENTITY);
-        loottable.generate(ctx).forEach(livingEntity::entityDropItem);
-    }
-
-    static LootContext.Builder getLootContextBuilder(LivingEntity livingEntity, boolean attackedRecently, DamageSource damageSourceIn, PlayerEntity playerEntity) {
-        LootContext.Builder lootcontext$builder = (new LootContext.Builder((ServerWorld) livingEntity.world)).withRandom(livingEntity.getRNG()).withParameter(LootParameters.THIS_ENTITY, livingEntity).withParameter(LootParameters.ORIGIN, livingEntity.getPositionVec()).withParameter(LootParameters.DAMAGE_SOURCE, damageSourceIn).withNullableParameter(LootParameters.KILLER_ENTITY, damageSourceIn.getTrueSource()).withNullableParameter(LootParameters.DIRECT_KILLER_ENTITY, damageSourceIn.getImmediateSource());
-        if (attackedRecently && playerEntity != null) {
-            lootcontext$builder = lootcontext$builder.withParameter(LootParameters.LAST_DAMAGE_PLAYER, playerEntity).withLuck(playerEntity.getLuck());
-        }
-        return lootcontext$builder;
     }
 }

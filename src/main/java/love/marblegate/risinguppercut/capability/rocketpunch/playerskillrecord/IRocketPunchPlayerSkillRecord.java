@@ -1,13 +1,17 @@
 package love.marblegate.risinguppercut.capability.rocketpunch.playerskillrecord;
 
 public interface IRocketPunchPlayerSkillRecord {
+    int getEffectiveChargeTime();
+
+    void setEffectiveChargeTime(int effectiveChargeTime);
+
     void setTimer(int timer);
 
     int getTimer();
 
-    void setDamage(float damage);
+    void setDamagePerEffectiveCharge(float damage);
 
-    float getDamage();
+    float getDamagePerEffectiveCharge();
 
     void setSpeedIndex(double index);
 

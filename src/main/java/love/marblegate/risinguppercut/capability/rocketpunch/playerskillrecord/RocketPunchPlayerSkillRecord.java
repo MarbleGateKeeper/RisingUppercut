@@ -24,7 +24,7 @@ public class RocketPunchPlayerSkillRecord {
         public INBT writeNBT(Capability<IRocketPunchPlayerSkillRecord> capability, IRocketPunchPlayerSkillRecord instance, Direction side) {
             CompoundNBT compoundNBT = new CompoundNBT();
             compoundNBT.putInt("rkp_timer", instance.getTimer());
-            compoundNBT.putFloat("rkp_damage", instance.getDamage());
+            compoundNBT.putFloat("rkp_damage", instance.getDamagePerEffectiveCharge());
             compoundNBT.putDouble("rkp_dx", instance.getDirectionX());
             compoundNBT.putDouble("rkp_dz", instance.getDirectionZ());
             compoundNBT.putDouble("rkp_speedIndex", instance.getSpeedIndex());
@@ -49,7 +49,7 @@ public class RocketPunchPlayerSkillRecord {
             boolean rkp_isFireDamage = ((CompoundNBT) nbt).getBoolean("rkp_isFireDamage");
             int rkp_shouldLoot = ((CompoundNBT) nbt).getInt("rkp_shouldLoot");
             instance.setTimer(rkp_timer);
-            instance.setDamage(rkp_damage);
+            instance.setDamagePerEffectiveCharge(rkp_damage);
             instance.setDirection(rkp_dx, rkp_dz);
             instance.setSpeedIndex(rkp_speedIndex);
             instance.setKnockbackIndex(rkp_knockbackIndex);

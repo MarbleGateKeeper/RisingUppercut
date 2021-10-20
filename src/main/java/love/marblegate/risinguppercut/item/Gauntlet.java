@@ -3,6 +3,7 @@ package love.marblegate.risinguppercut.item;
 import love.marblegate.risinguppercut.capability.rocketpunch.playerskillrecord.IRocketPunchPlayerSkillRecord;
 import love.marblegate.risinguppercut.capability.rocketpunch.playerskillrecord.RocketPunchPlayerSkillRecord;
 import love.marblegate.risinguppercut.entity.watcher.RisingUppercutWatcher;
+import love.marblegate.risinguppercut.entity.watcher.RocketPunchAlternativeInitializer;
 import love.marblegate.risinguppercut.misc.Configuration;
 import love.marblegate.risinguppercut.misc.ModGroup;
 import love.marblegate.risinguppercut.misc.RotationUtil;
@@ -42,21 +43,34 @@ public class Gauntlet extends Item implements IVanishable {
 
     public void onPlayerStoppedUsing(ItemStack stack, World worldIn, LivingEntity entityLiving, int timeLeft) {
         if (!worldIn.isRemote) {
-            LazyOptional<IRocketPunchPlayerSkillRecord> rkp_cap = entityLiving.getCapability(RocketPunchPlayerSkillRecord.ROCKET_PUNCH_SKILL_RECORD);
             final int capTimer = Math.min((getUseDuration(stack) - timeLeft), SkillData.getRocketPunchMaxChangeTime(stack));
-            rkp_cap.ifPresent(
-                    cap -> {
-                        cap.setTimer(capTimer);
-                        cap.setDamage(SkillData.getRocketPunchDamagePerTick(stack) * capTimer);
-                        cap.setSpeedIndex(SkillData.getRocketPunchSpeedIndex(stack));
-                        cap.setKnockbackIndex(SkillData.getRocketPunchKnockbackSpeedIndex(stack));
-                        cap.setDirection(RotationUtil.getHorizentalLookVecX(entityLiving), RotationUtil.getHorizentalLookVecZ(entityLiving));
-                        cap.setHealing(SkillData.shouldHeal(stack));
-                        cap.setIgnoreArmor(SkillData.shouldIgnoreArmor(stack));
-                        cap.setIsFireDamage(SkillData.shouldBeFireDamage(stack));
-                        cap.setShouldLoot(SkillData.shouldLoot(stack));
-                    }
-            );
+            // New mechanism
+            if(Configuration.GeneralConfig.NEW_ROCKET_PUNCH_MECHANISM.get()){
+                RocketPunchAlternativeInitializer initializer = new RocketPunchAlternativeInitializer(entityLiving.world, entityLiving.getPosition(), capTimer,
+                        SkillData.getRocketPunchKnockbackSpeedIndex(stack) ,SkillData.getRocketPunchSpeedIndex(stack), SkillData.getRocketPunchDamagePerTick(stack),
+                        RotationUtil.getHorizentalLookVecX(entityLiving), RotationUtil.getHorizentalLookVecZ(entityLiving),
+                        SkillData.shouldIgnoreArmor(stack), SkillData.shouldHeal(stack),SkillData.shouldBeFireDamage(stack),
+                        (PlayerEntity) entityLiving, SkillData.shouldLoot(stack));
+                worldIn.addEntity(initializer);
+            }
+            // Old mechanism
+            else{
+                LazyOptional<IRocketPunchPlayerSkillRecord> rkp_cap = entityLiving.getCapability(RocketPunchPlayerSkillRecord.ROCKET_PUNCH_SKILL_RECORD);
+                rkp_cap.ifPresent(
+                        cap -> {
+                            cap.setTimer(capTimer);
+                            cap.setEffectiveChargeTime(capTimer);
+                            cap.setDamagePerEffectiveCharge(SkillData.getRocketPunchDamagePerTick(stack));
+                            cap.setSpeedIndex(SkillData.getRocketPunchSpeedIndex(stack));
+                            cap.setKnockbackIndex(SkillData.getRocketPunchKnockbackSpeedIndex(stack));
+                            cap.setDirection(RotationUtil.getHorizentalLookVecX(entityLiving), RotationUtil.getHorizentalLookVecZ(entityLiving));
+                            cap.setHealing(SkillData.shouldHeal(stack));
+                            cap.setIgnoreArmor(SkillData.shouldIgnoreArmor(stack));
+                            cap.setIsFireDamage(SkillData.shouldBeFireDamage(stack));
+                            cap.setShouldLoot(SkillData.shouldLoot(stack));
+                        }
+                );
+            }
             stack.damageItem(1, ((PlayerEntity) entityLiving), (entity) -> {
                 entity.sendBreakAnimation(EquipmentSlotType.MAINHAND);
             });

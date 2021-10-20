@@ -22,9 +22,9 @@ import java.util.List;
 
 public class RocketPunchWatcher extends Entity {
     static final DataParameter<Integer> TIMER = EntityDataManager.createKey(RocketPunchWatcher.class, DataSerializers.VARINT);
-    int totalTime;
+    int effectiveChargeTime;
     double knockbackSpeedIndex;
-    float damage;
+    float damagePerEffectiveCharge;
     double dx;
     double dz;
     boolean ignoreArmor;
@@ -38,13 +38,13 @@ public class RocketPunchWatcher extends Entity {
         super(entityTypeIn, worldIn);
     }
 
-    public RocketPunchWatcher(World worldIn, BlockPos pos, int timer, double knockbackSpeedIndex, float damage, double dx, double dz, boolean ignoreArmor, boolean healing, boolean isFireDamage, PlayerEntity source) {
+    public RocketPunchWatcher(World worldIn, BlockPos pos, int timer, int effectiveChargeTime, double knockbackSpeedIndex, float damagePerEffectiveCharge, double dx, double dz, boolean ignoreArmor, boolean healing, boolean isFireDamage, PlayerEntity source) {
         super(EntityRegistry.ROCKET_PUNCH_WATCHER.get(), worldIn);
         setPosition(pos.getX(), pos.getY(), pos.getZ());
         dataManager.set(TIMER, timer);
-        totalTime = timer;
+        this.effectiveChargeTime = effectiveChargeTime;
         this.knockbackSpeedIndex = knockbackSpeedIndex;
-        this.damage = damage + 1;
+        this.damagePerEffectiveCharge = damagePerEffectiveCharge;
         this.dx = dx;
         this.dz = dz;
         this.source = source;
@@ -78,8 +78,8 @@ public class RocketPunchWatcher extends Entity {
                     for (YUnchangedLivingEntity entity : watchedEntities) {
                         if (entity.livingEntity.collidedHorizontally) {
                             DamageSource damageSource = new RocketPunchOnWallDamageSource(source);
-                            float realDamageApplied = damage;
-                            if (totalTime - temp < 10) realDamageApplied *= 2;
+                            float realDamageApplied = damagePerEffectiveCharge * effectiveChargeTime + 1;
+                            if (effectiveChargeTime - temp < 10) realDamageApplied = realDamageApplied * 2 - 1;
                             {
                                 if (ignoreArmor) {
                                     damageSource.setDamageBypassesArmor();
@@ -88,7 +88,7 @@ public class RocketPunchWatcher extends Entity {
                                     damageSource.setFireDamage();
                                     entity.livingEntity.attackEntityFrom(damageSource, realDamageApplied);
                                 } else if (healing) {
-                                    entity.livingEntity.heal(damage);
+                                    entity.livingEntity.heal(damagePerEffectiveCharge);
                                 } else {
                                     entity.livingEntity.attackEntityFrom(damageSource, realDamageApplied);
                                 }

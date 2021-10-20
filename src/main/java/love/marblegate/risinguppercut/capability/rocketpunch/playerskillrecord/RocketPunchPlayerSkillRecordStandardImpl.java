@@ -1,10 +1,11 @@
 package love.marblegate.risinguppercut.capability.rocketpunch.playerskillrecord;
 
 public class RocketPunchPlayerSkillRecordStandardImpl implements IRocketPunchPlayerSkillRecord {
+    int effectiveChargeTime;
     int timer;
     double dX;
     double dZ;
-    float damage;
+    float damagePerEffectiveCharge;
     double speedIndex;
     double knockbackSpeedIndex;
     boolean ignoreArmor;
@@ -17,7 +18,7 @@ public class RocketPunchPlayerSkillRecordStandardImpl implements IRocketPunchPla
         timer = 0;
         dX = 0;
         dZ = 0;
-        damage = 0;
+        damagePerEffectiveCharge = 0;
         speedIndex = 0;
         knockbackSpeedIndex = 0;
         ignoreArmor = false;
@@ -38,13 +39,13 @@ public class RocketPunchPlayerSkillRecordStandardImpl implements IRocketPunchPla
     }
 
     @Override
-    public void setDamage(float damage) {
-        this.damage = damage;
+    public void setDamagePerEffectiveCharge(float damagePerEffectiveCharge) {
+        this.damagePerEffectiveCharge = damagePerEffectiveCharge;
     }
 
     @Override
-    public float getDamage() {
-        return damage;
+    public float getDamagePerEffectiveCharge() {
+        return damagePerEffectiveCharge;
     }
 
     @Override
@@ -133,15 +134,26 @@ public class RocketPunchPlayerSkillRecordStandardImpl implements IRocketPunchPla
 
     @Override
     public void clear() {
+        effectiveChargeTime = 0;
         timer = 0;
         dX = 0;
         dZ = 0;
-        damage = 0;
+        damagePerEffectiveCharge = 0;
         speedIndex = 0;
         knockbackSpeedIndex = 0;
         ignoreArmor = false;
         healing = false;
         isFireDamage = false;
         shouldLoot = 0;
+    }
+
+    @Override
+    public int getEffectiveChargeTime() {
+        return effectiveChargeTime;
+    }
+
+    @Override
+    public void setEffectiveChargeTime(int effectiveChargeTime) {
+        this.effectiveChargeTime = effectiveChargeTime;
     }
 }
