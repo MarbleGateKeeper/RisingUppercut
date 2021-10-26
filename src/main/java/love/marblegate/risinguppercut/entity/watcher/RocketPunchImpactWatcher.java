@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class RocketPunchWatcher extends Entity {
-    static final DataParameter<Integer> TIMER = EntityDataManager.createKey(RocketPunchWatcher.class, DataSerializers.VARINT);
+public class RocketPunchImpactWatcher extends Entity {
+    static final DataParameter<Integer> TIMER = EntityDataManager.createKey(RocketPunchImpactWatcher.class, DataSerializers.VARINT);
     int effectiveChargeTime;
     double knockbackSpeedIndex;
     float damagePerEffectiveCharge;
@@ -34,12 +34,12 @@ public class RocketPunchWatcher extends Entity {
     List<YUnchangedLivingEntity> watchedEntities;
 
 
-    public RocketPunchWatcher(EntityType<? extends RocketPunchWatcher> entityTypeIn, World worldIn) {
+    public RocketPunchImpactWatcher(EntityType<? extends RocketPunchImpactWatcher> entityTypeIn, World worldIn) {
         super(entityTypeIn, worldIn);
     }
 
-    public RocketPunchWatcher(World worldIn, BlockPos pos, int timer, int effectiveChargeTime, double knockbackSpeedIndex, float damagePerEffectiveCharge, double dx, double dz, boolean ignoreArmor, boolean healing, boolean isFireDamage, PlayerEntity source) {
-        super(EntityRegistry.ROCKET_PUNCH_WATCHER.get(), worldIn);
+    public RocketPunchImpactWatcher(World worldIn, BlockPos pos, int timer, int effectiveChargeTime, double knockbackSpeedIndex, float damagePerEffectiveCharge, double dx, double dz, boolean ignoreArmor, boolean healing, boolean isFireDamage, PlayerEntity source) {
+        super(EntityRegistry.ROCKET_PUNCH_IMPACT_WATCHER.get(), worldIn);
         setPosition(pos.getX(), pos.getY(), pos.getZ());
         dataManager.set(TIMER, timer);
         this.effectiveChargeTime = effectiveChargeTime;
