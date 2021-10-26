@@ -5,10 +5,6 @@ import net.minecraftforge.common.ForgeConfigSpec;
 public class Configuration {
     public static final ForgeConfigSpec MOD_CONFIG;
 
-    public static class GeneralConfig {
-        public static ForgeConfigSpec.BooleanValue NEW_ROCKET_PUNCH_MECHANISM;
-    }
-
     public static class RisingUppercutConfig {
         public static ForgeConfigSpec.IntValue UPRISING_TIME;
         public static ForgeConfigSpec.IntValue FLOATING_TIME;
@@ -33,12 +29,6 @@ public class Configuration {
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
-        builder.push("general_setting");
-        GeneralConfig.NEW_ROCKET_PUNCH_MECHANISM = builder.comment("[IMPORTANT]If your server tps is unstable, Please set this option to true.",
-                "Unstable tps is highly possible to cause Rocket Punch not working in old mechanism.",
-                "New mechanism guarantees the viability of Rocket Punch.").define("NEW_ROCKET_PUNCH_MECHANISM", true);
-
-
 
         builder.push("rising_uppercut");
         RisingUppercutConfig.DAMAGE = builder.comment("Attack damage of rising uppercut.").defineInRange("DAMAGE", 8, 0.1, 1000);

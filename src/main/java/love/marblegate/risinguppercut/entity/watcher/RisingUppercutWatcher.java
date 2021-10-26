@@ -33,7 +33,7 @@ public class RisingUppercutWatcher extends Entity {
     List<LivingEntity> watchedEntities;
 
     public RisingUppercutWatcher(World worldIn, BlockPos pos, PlayerEntity source, int upwardTime, int floatingTime, double speedIndex, float damage, boolean ignoreArmor, boolean healing, boolean isFireDamage) {
-        super(EntityRegistry.ROCKET_PUNCH_WATCHER.get(), worldIn);
+        super(EntityRegistry.ROCKET_PUNCH_IMPACT_WATCHER.get(), worldIn);
         setPosition(pos.getX(), pos.getY(), pos.getZ());
         dataManager.set(TIMER, upwardTime + floatingTime);
         totalTime = upwardTime + floatingTime;

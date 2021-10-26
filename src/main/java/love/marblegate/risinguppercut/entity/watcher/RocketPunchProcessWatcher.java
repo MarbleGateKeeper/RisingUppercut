@@ -1,9 +1,6 @@
 package love.marblegate.risinguppercut.entity.watcher;
 
-import love.marblegate.risinguppercut.capability.rocketpunch.playerskillrecord.IRocketPunchPlayerSkillRecord;
-import love.marblegate.risinguppercut.capability.rocketpunch.playerskillrecord.RocketPunchPlayerSkillRecord;
 import love.marblegate.risinguppercut.damagesource.RocketPunchDamageSource;
-import love.marblegate.risinguppercut.damagesource.RocketPunchOnWallDamageSource;
 import love.marblegate.risinguppercut.misc.LootUtil;
 import love.marblegate.risinguppercut.registry.EntityRegistry;
 import net.minecraft.entity.Entity;
@@ -19,16 +16,12 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.fml.network.NetworkHooks;
 
-import java.util.ArrayList;
 import java.util.List;
 
-//TODO 低tps的替代方案
-public class RocketPunchAlternativeInitializer extends Entity {
-    static final DataParameter<Integer> TIMER = EntityDataManager.createKey(RocketPunchAlternativeInitializer.class, DataSerializers.VARINT);
+public class RocketPunchProcessWatcher extends Entity {
+    static final DataParameter<Integer> TIMER = EntityDataManager.createKey(RocketPunchProcessWatcher.class, DataSerializers.VARINT);
     int effectiveChargeTime;
     double dx;
     double dz;
@@ -43,12 +36,12 @@ public class RocketPunchAlternativeInitializer extends Entity {
     boolean stopTracking = false;
 
 
-    public RocketPunchAlternativeInitializer(EntityType<? extends RocketPunchAlternativeInitializer> entityTypeIn, World worldIn) {
+    public RocketPunchProcessWatcher(EntityType<? extends RocketPunchProcessWatcher> entityTypeIn, World worldIn) {
         super(entityTypeIn, worldIn);
     }
 
-    public RocketPunchAlternativeInitializer(World worldIn, BlockPos pos, int effectiveChargeTime, double knockbackSpeedIndex, double speedIndex, float damagePerEffectiveCharge, double dx, double dz, boolean ignoreArmor, boolean healing, boolean isFireDamage, PlayerEntity source,int shouldLoot) {
-        super(EntityRegistry.ROCKET_PUNCH_WATCHER.get(), worldIn);
+    public RocketPunchProcessWatcher(World worldIn, BlockPos pos, int effectiveChargeTime, double knockbackSpeedIndex, double speedIndex, float damagePerEffectiveCharge, double dx, double dz, boolean ignoreArmor, boolean healing, boolean isFireDamage, PlayerEntity source, int shouldLoot) {
+        super(EntityRegistry.ROCKET_PUNCH_IMPACT_WATCHER.get(), worldIn);
         setPosition(pos.getX(), pos.getY(), pos.getZ());
         dataManager.set(TIMER, effectiveChargeTime);
         this.effectiveChargeTime = effectiveChargeTime;
@@ -71,7 +64,7 @@ public class RocketPunchAlternativeInitializer extends Entity {
             int temp = dataManager.get(TIMER);
 
             //Deal with rocket punch is valid
-            if(temp>0 && !stopTracking && source!=null){
+            if (temp > 0 && !stopTracking && source != null) {
                 //Slightly enlarge player's hitbox
                 AxisAlignedBB collideBox = source.getBoundingBox().grow(0.5f, 0, 0.5f);
 
@@ -82,7 +75,7 @@ public class RocketPunchAlternativeInitializer extends Entity {
                 //If any mob is detected
                 if (!checks.isEmpty()) {
                     // spawn an watchEntity to simulate rocket punch effect
-                    RocketPunchWatcher watchEntity = new RocketPunchWatcher(world, source.getPosition(), temp, effectiveChargeTime,
+                    RocketPunchImpactWatcher watchEntity = new RocketPunchImpactWatcher(world, source.getPosition(), temp, effectiveChargeTime,
                             knockbackSpeedIndex, damagePerEffectiveCharge, dx, dz,
                             ignoreArmor, healing, isFireDamage, source);
                     for (LivingEntity target : checks) {
@@ -132,11 +125,11 @@ public class RocketPunchAlternativeInitializer extends Entity {
                     source.setMotion(dx * speedIndex, 0.1, dz * speedIndex);
                     source.markPositionDirty();
                     source.velocityChanged = true;
-                    dataManager.set(TIMER,temp-1);
+                    dataManager.set(TIMER, temp - 1);
                 }
             }
 
-            if(stopTracking || source == null || temp == 0){
+            if (stopTracking || source == null || temp == 0) {
                 remove();
             }
         }
