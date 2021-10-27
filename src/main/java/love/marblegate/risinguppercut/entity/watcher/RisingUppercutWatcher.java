@@ -2,26 +2,26 @@ package love.marblegate.risinguppercut.entity.watcher;
 
 import love.marblegate.risinguppercut.damagesource.RisingUppercutDamageSource;
 import love.marblegate.risinguppercut.registry.EntityRegistry;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.IPacket;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.fmllegacy.network.NetworkHooks;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class RisingUppercutWatcher extends Entity {
-    static final DataParameter<Integer> TIMER = EntityDataManager.createKey(RisingUppercutWatcher.class, DataSerializers.VARINT);
+    static final EntityDataAccessor<Integer> TIMER = SynchedEntityData.defineId(RisingUppercutWatcher.class, EntityDataSerializers.INT);
     int totalTime;
     int floatingTime;
     double speedIndex;
@@ -29,13 +29,13 @@ public class RisingUppercutWatcher extends Entity {
     boolean ignoreArmor;
     boolean healing;
     boolean isFireDamage;
-    PlayerEntity source; //Can be null
+    Player source; //Can be null
     List<LivingEntity> watchedEntities;
 
-    public RisingUppercutWatcher(World worldIn, BlockPos pos, PlayerEntity source, int upwardTime, int floatingTime, double speedIndex, float damage, boolean ignoreArmor, boolean healing, boolean isFireDamage) {
-        super(EntityRegistry.ROCKET_PUNCH_IMPACT_WATCHER.get(), worldIn);
-        setPosition(pos.getX(), pos.getY(), pos.getZ());
-        dataManager.set(TIMER, upwardTime + floatingTime);
+    public RisingUppercutWatcher(Level level, BlockPos pos, Player source, int upwardTime, int floatingTime, double speedIndex, float damage, boolean ignoreArmor, boolean healing, boolean isFireDamage) {
+        super(EntityRegistry.ROCKET_PUNCH_IMPACT_WATCHER.get(), level);
+        setPos(pos.getX(), pos.getY(), pos.getZ());
+        entityData.set(TIMER, upwardTime + floatingTime);
         totalTime = upwardTime + floatingTime;
         this.source = source;
         this.floatingTime = floatingTime;
@@ -47,8 +47,8 @@ public class RisingUppercutWatcher extends Entity {
         watchedEntities = new ArrayList<>();
     }
 
-    public RisingUppercutWatcher(EntityType<? extends RisingUppercutWatcher> entityTypeIn, World worldIn) {
-        super(entityTypeIn, worldIn);
+    public RisingUppercutWatcher(EntityType<? extends RisingUppercutWatcher> entityTypeIn, Level level) {
+        super(entityTypeIn, level);
     }
 
     public void watch(LivingEntity livingEntity) {
@@ -61,26 +61,26 @@ public class RisingUppercutWatcher extends Entity {
     @Override
     public void tick() {
         super.tick();
-        if (!world.isRemote()) {
-            int temp = dataManager.get(TIMER);
+        if (!level.isClientSide()) {
+            int temp = entityData.get(TIMER);
             if (watchedEntities != null && source != null) {
                 if (!watchedEntities.isEmpty()) {
                     for (LivingEntity entity : watchedEntities) {
                         if (temp == totalTime - 1) {
                             DamageSource damageSource = new RisingUppercutDamageSource(source);
                             if (isFireDamage) {
-                                damageSource.setFireDamage();
-                                entity.attackEntityFrom(damageSource, damage);
-                                entity.setFire(3);
+                                damageSource.setIsFire();
+                                entity.hurt(damageSource, damage);
+                                entity.setSecondsOnFire(3);
                             } else if (ignoreArmor) {
-                                damageSource.setDamageBypassesArmor();
-                                entity.attackEntityFrom(damageSource, damage);
+                                damageSource.bypassArmor();
+                                entity.hurt(damageSource, damage);
                             } else if (healing) {
                                 System.out.print(entity.getHealth() + "->");
                                 entity.heal(damage);
                                 System.out.print(entity.getHealth() + "\n");
                             } else {
-                                entity.attackEntityFrom(damageSource, damage);
+                                entity.hurt(damageSource, damage);
                             }
                         }
                         if (temp > floatingTime) {
@@ -99,56 +99,55 @@ public class RisingUppercutWatcher extends Entity {
                 } else {
                     moveVerticallyWithHorizonControl(source, -0.1);
                 }
-                if (temp - 1 == 0) remove();
-                else dataManager.set(TIMER, temp - 1);
+                if (temp - 1 == 0) remove(RemovalReason.DISCARDED);
+                else entityData.set(TIMER, temp - 1);
             } else {
-                remove();
+                remove(RemovalReason.DISCARDED);
             }
         }
     }
 
     void moveVertically(LivingEntity livingEntity, double speed) {
-        livingEntity.setMotion(0, speed, 0);
-        livingEntity.markPositionDirty();
-        livingEntity.velocityChanged = true;
+        livingEntity.setDeltaMovement(0, speed, 0);
+        livingEntity.hurtMarked = true;
     }
 
     void moveVerticallyWithHorizonControl(LivingEntity livingEntity, double speed) {
-        livingEntity.setMotion(livingEntity.getMotion().getX(), speed, livingEntity.getMotion().getZ());
-        livingEntity.markPositionDirty();
-        livingEntity.velocityChanged = true;
+        livingEntity.setDeltaMovement(livingEntity.getDeltaMovement().x(), speed, livingEntity.getDeltaMovement().z());
+        livingEntity.hurtMarked = true;
     }
 
     @Override
-    public boolean hasNoGravity() {
+    public boolean isNoGravity() {
         return true;
     }
 
-
     @Override
-    protected void registerData() {
-        dataManager.register(TIMER, 0);
-    }
-
-    @Override
-    protected void readAdditional(CompoundNBT compound) {
+    protected void readAdditionalSaveData(CompoundTag p_20052_) {
         source = null;
-        dataManager.set(TIMER, 0);
+        entityData.set(TIMER, 0);
     }
 
     @Override
-    protected void writeAdditional(CompoundNBT compound) {
+    protected void addAdditionalSaveData(CompoundTag p_20139_) {
 
-    }
-
-    @Override
-    public float getCollisionBorderSize() {
-        return super.getCollisionBorderSize();
     }
 
 
     @Override
-    public IPacket<?> createSpawnPacket() {
+    protected void defineSynchedData() {
+        entityData.define(TIMER, 0);
+    }
+
+
+    @Override
+    public float getPickRadius() {
+        return super.getPickRadius();
+    }
+
+
+    @Override
+    public Packet<?> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 }

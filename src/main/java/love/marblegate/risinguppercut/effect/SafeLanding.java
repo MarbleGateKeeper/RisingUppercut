@@ -1,10 +1,10 @@
 package love.marblegate.risinguppercut.effect;
 
-import net.minecraft.potion.Effect;
-import net.minecraft.potion.EffectType;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
 
-public class SafeLanding extends Effect {
+public class SafeLanding extends MobEffect {
     public SafeLanding() {
-        super(EffectType.BENEFICIAL, 15070719);
+        super(MobEffectCategory.BENEFICIAL, 15070719);
     }
 }

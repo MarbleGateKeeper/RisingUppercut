@@ -3,31 +3,31 @@ package love.marblegate.risinguppercut.eventhandler.skilleffect;
 import love.marblegate.risinguppercut.misc.Configuration;
 import love.marblegate.risinguppercut.network.Networking;
 import love.marblegate.risinguppercut.network.RemoveEffectSyncToClientPacket;
-import love.marblegate.risinguppercut.registry.EffectRegistry;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
+import love.marblegate.risinguppercut.registry.MobEffectRegistry;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraftforge.fmllegacy.network.PacketDistributor;
 
 @Mod.EventBusSubscriber()
 public class SafeLandingEventHandler {
 
     @SubscribeEvent
     public static void handle(LivingFallEvent event) {
-        if (!event.getEntityLiving().world.isRemote && !event.isCanceled()) {
-            if (event.getEntityLiving() instanceof PlayerEntity) {
-                if (((PlayerEntity) event.getEntityLiving()).isPotionActive(EffectRegistry.SAFE_LANDING.get())) {
+        if (!event.getEntityLiving().level.isClientSide && !event.isCanceled()) {
+            if (event.getEntityLiving() instanceof Player) {
+                if (((Player) event.getEntityLiving()).hasEffect(MobEffectRegistry.SAFE_LANDING.get())) {
                     event.setCanceled(true);
                     if (Configuration.SafeLandingConfig.DISPOSABLE_EFFECT.get()) {
-                        ((PlayerEntity) event.getEntityLiving()).removeActivePotionEffect(EffectRegistry.SAFE_LANDING.get());
+                        ((Player) event.getEntityLiving()).removeEffectNoUpdate(MobEffectRegistry.SAFE_LANDING.get());
                         //Sync to client
                         Networking.INSTANCE.send(
                                 PacketDistributor.PLAYER.with(
-                                        () -> (ServerPlayerEntity) event.getEntityLiving()
+                                        () -> (ServerPlayer) event.getEntityLiving()
                                 ),
-                                new RemoveEffectSyncToClientPacket(EffectRegistry.SAFE_LANDING.get()));
+                                new RemoveEffectSyncToClientPacket(MobEffectRegistry.SAFE_LANDING.get()));
                     }
                 }
             }

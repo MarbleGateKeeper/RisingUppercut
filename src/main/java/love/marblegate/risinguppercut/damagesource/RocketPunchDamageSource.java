@@ -1,23 +1,23 @@
 package love.marblegate.risinguppercut.damagesource;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.EntityDamageSource;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.damagesource.EntityDamageSource;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 
 
 public class RocketPunchDamageSource extends EntityDamageSource {
 
-    public RocketPunchDamageSource(PlayerEntity playerEntity) {
+    public RocketPunchDamageSource(Player playerEntity) {
         super("rising_uppercut.rocket_punch", playerEntity);
     }
 
     /**
      * Gets the death message that is displayed when the player dies
      */
-    public ITextComponent getDeathMessage(LivingEntity entityLivingBaseIn) {
-        String s = "death.attack." + damageType;
-        return new TranslationTextComponent(s, entityLivingBaseIn.getDisplayName(), damageSourceEntity);
+    public Component getLocalizedDeathMessage(LivingEntity entityLivingBaseIn) {
+        String s = "death.attack." + msgId;
+        return new TranslatableComponent(s, entityLivingBaseIn.getDisplayName(), entity);
     }
 }

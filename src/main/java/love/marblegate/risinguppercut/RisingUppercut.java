@@ -2,7 +2,7 @@ package love.marblegate.risinguppercut;
 
 import love.marblegate.risinguppercut.misc.Configuration;
 import love.marblegate.risinguppercut.misc.CustomEnchantmentType;
-import love.marblegate.risinguppercut.registry.EffectRegistry;
+import love.marblegate.risinguppercut.registry.MobEffectRegistry;
 import love.marblegate.risinguppercut.registry.EnchantmentRegistry;
 import love.marblegate.risinguppercut.registry.EntityRegistry;
 import love.marblegate.risinguppercut.registry.ItemRegistry;
@@ -19,7 +19,7 @@ public class RisingUppercut {
 
         ItemRegistry.ITEM.register(FMLJavaModLoadingContext.get().getModEventBus());
         EntityRegistry.ENTITY_TYPES.register(FMLJavaModLoadingContext.get().getModEventBus());
-        EffectRegistry.EFFECT.register(FMLJavaModLoadingContext.get().getModEventBus());
+        MobEffectRegistry.EFFECT.register(FMLJavaModLoadingContext.get().getModEventBus());
         EnchantmentRegistry.ENCHANTMENT.register(FMLJavaModLoadingContext.get().getModEventBus());
 
         CustomEnchantmentType.addToItemGroup();

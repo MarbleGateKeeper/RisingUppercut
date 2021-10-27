@@ -1,12 +1,12 @@
 package love.marblegate.risinguppercut.misc.proxy;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.potion.Effect;
+import net.minecraft.world.effect.MobEffect;
 
 public class ClientProxy implements IProxy {
 
     @Override
-    public void removeEffect(Effect effect) {
-        Minecraft.getInstance().player.removeActivePotionEffect(effect.getEffect());
+    public void removeEffect(MobEffect mobEffect) {
+        Minecraft.getInstance().player.removeEffectNoUpdate(mobEffect);
     }
 }

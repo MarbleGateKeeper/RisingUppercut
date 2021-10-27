@@ -3,55 +3,56 @@ package love.marblegate.risinguppercut.item;
 import love.marblegate.risinguppercut.entity.watcher.RisingUppercutWatcher;
 import love.marblegate.risinguppercut.entity.watcher.RocketPunchProcessWatcher;
 import love.marblegate.risinguppercut.misc.Configuration;
-import love.marblegate.risinguppercut.misc.ModGroup;
+import love.marblegate.risinguppercut.misc.ModCreativeTab;
 import love.marblegate.risinguppercut.misc.RotationUtil;
-import love.marblegate.risinguppercut.registry.EffectRegistry;
+import love.marblegate.risinguppercut.registry.MobEffectRegistry;
 import love.marblegate.risinguppercut.registry.EnchantmentRegistry;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.enchantment.IVanishable;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.UseAction;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.world.World;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.Vanishable;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 
 import java.util.List;
 import java.util.Map;
 
-public class Gauntlet extends Item implements IVanishable {
+public class Gauntlet extends Item implements Vanishable {
 
 
     public Gauntlet() {
         super(new Properties()
-                .group(ModGroup.INSTANCE)
-                .maxStackSize(1)
-                .maxDamage(1024)
-                .isImmuneToFire());
+                .tab(ModCreativeTab.INSTANCE)
+                .stacksTo(1)
+                .durability(1024)
+                .fireResistant());
     }
 
 
-    public void onPlayerStoppedUsing(ItemStack stack, World worldIn, LivingEntity entityLiving, int timeLeft) {
-        if (!worldIn.isRemote) {
+    @Override
+    public void releaseUsing(ItemStack stack, Level level, LivingEntity entityLiving, int timeLeft) {
+        if (!level.isClientSide) {
             final int capTimer = Math.min((getUseDuration(stack) - timeLeft), SkillData.getRocketPunchMaxChangeTime(stack));
-            RocketPunchProcessWatcher initializer = new RocketPunchProcessWatcher(entityLiving.world, entityLiving.getPosition(), capTimer,
+            RocketPunchProcessWatcher initializer = new RocketPunchProcessWatcher(entityLiving.level, entityLiving.blockPosition(), capTimer,
                     SkillData.getRocketPunchKnockbackSpeedIndex(stack), SkillData.getRocketPunchSpeedIndex(stack), SkillData.getRocketPunchDamagePerTick(stack),
                     RotationUtil.getHorizentalLookVecX(entityLiving), RotationUtil.getHorizentalLookVecZ(entityLiving),
                     SkillData.shouldIgnoreArmor(stack), SkillData.shouldHeal(stack), SkillData.shouldBeFireDamage(stack),
-                    (PlayerEntity) entityLiving, SkillData.shouldLoot(stack));
-            worldIn.addEntity(initializer);
+                    (Player) entityLiving, SkillData.shouldLoot(stack));
+            level.addFreshEntity(initializer);
 
-            stack.damageItem(1, ((PlayerEntity) entityLiving), (entity) -> {
-                entity.sendBreakAnimation(EquipmentSlotType.MAINHAND);
+            stack.hurtAndBreak(1, ((Player) entityLiving), (entity) -> {
+                entity.broadcastBreakEvent(EquipmentSlot.MAINHAND);
             });
-            ((PlayerEntity) entityLiving).getCooldownTracker().setCooldown(this, SkillData.getRocketPunchCooldown(stack));
+            ((Player) entityLiving).getCooldowns().addCooldown(this, SkillData.getRocketPunchCooldown(stack));
         }
     }
 
@@ -61,56 +62,57 @@ public class Gauntlet extends Item implements IVanishable {
     }
 
     @Override
-    public int getItemEnchantability() {
+    public int getEnchantmentValue() {
         return 18;
     }
 
     @Override
-    public ActionResultType itemInteractionForEntity(ItemStack stack, PlayerEntity playerIn, LivingEntity target, Hand hand) {
-        if (target.world.isRemote || hand == Hand.OFF_HAND) return ActionResultType.PASS;
+    public InteractionResult interactLivingEntity(ItemStack stack, Player playerIn, LivingEntity target, InteractionHand hand) {
+        if (target.level.isClientSide || hand == InteractionHand.OFF_HAND) return InteractionResult.PASS;
         else {
-            doRisingUppercut(playerIn.world, playerIn, stack);
-            stack.damageItem(1, playerIn, (entity) -> entity.sendBreakAnimation(EquipmentSlotType.MAINHAND));
-            return ActionResultType.SUCCESS;
+            doRisingUppercut(playerIn.level, playerIn, stack);
+            stack.hurtAndBreak(1, playerIn, (entity) -> entity.broadcastBreakEvent(EquipmentSlot.MAINHAND));
+            return InteractionResult.SUCCESS;
         }
     }
 
-    public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
-        if (handIn == Hand.MAIN_HAND) {
-            ItemStack itemstack = playerIn.getHeldItem(handIn);
+    @Override
+    public InteractionResultHolder<ItemStack> use(Level level, Player playerIn, InteractionHand handIn) {
+        if (handIn == InteractionHand.MAIN_HAND) {
+            ItemStack itemstack = playerIn.getItemInHand(handIn);
             //Work for rising uppercut
-            if (playerIn.isSneaking()) {
-                if (!worldIn.isRemote()) {
-                    doRisingUppercut(worldIn, playerIn, itemstack);
-                    itemstack.damageItem(1, playerIn, (entity) -> entity.sendBreakAnimation(EquipmentSlotType.MAINHAND));
+            if (playerIn.isShiftKeyDown()) {
+                if (!level.isClientSide()) {
+                    doRisingUppercut(level, playerIn, itemstack);
+                    itemstack.hurtAndBreak(1, playerIn, (entity) -> entity.broadcastBreakEvent(EquipmentSlot.MAINHAND));
                 }
-                return ActionResult.resultSuccess(itemstack);
+                return InteractionResultHolder.success(itemstack);
             }
             //Work for rocket punch
             else {
-                playerIn.setActiveHand(handIn);
-                return ActionResult.resultConsume(itemstack);
+                playerIn.startUsingItem(handIn);
+                return InteractionResultHolder.consume(itemstack);
             }
         } else {
-            return ActionResult.resultPass(playerIn.getHeldItemOffhand());
+            return InteractionResultHolder.pass(playerIn.getOffhandItem());
         }
 
     }
 
     //Execute Rising Uppercut
-    void doRisingUppercut(World worldIn, PlayerEntity playerIn, ItemStack itemStack) {
+    void doRisingUppercut(Level worldIn, Player playerIn, ItemStack itemStack) {
         //Slightly enlarge player's hitbox
-        AxisAlignedBB collideBox = SkillData.shouldRisingUppercutAOE(itemStack) ?
-                playerIn.getBoundingBox().grow(2, 0, 2) :
-                playerIn.getBoundingBox().expand(RotationUtil.getHorizentalLookVecX(playerIn) * 3, 0, RotationUtil.getHorizentalLookVecZ(playerIn) * 3);
+        AABB collideBox = SkillData.shouldRisingUppercutAOE(itemStack) ?
+                playerIn.getBoundingBox().inflate(2, 0, 2) :
+                playerIn.getBoundingBox().expandTowards(RotationUtil.getHorizentalLookVecX(playerIn) * 3, 0, RotationUtil.getHorizentalLookVecZ(playerIn) * 3);
 
 
         //Collision Detection
-        List<LivingEntity> checks = playerIn.world
-                .getEntitiesWithinAABB(LivingEntity.class, collideBox);
+        List<LivingEntity> checks = playerIn.level
+                .getEntitiesOfClass(LivingEntity.class, collideBox);
         checks.remove(playerIn);
 
-        RisingUppercutWatcher watchEntity = new RisingUppercutWatcher(playerIn.world, playerIn.getPosition(), playerIn,
+        RisingUppercutWatcher watchEntity = new RisingUppercutWatcher(playerIn.level, playerIn.blockPosition(), playerIn,
                 SkillData.getRisingUppercutUpwardTime(itemStack), SkillData.getRisingUppercutFloatingTime(itemStack),
                 SkillData.getRisingUppercutSpeedIndex(itemStack), SkillData.getRisingUppercutDamage(itemStack),
                 SkillData.shouldIgnoreArmor(itemStack), SkillData.shouldHeal(itemStack), SkillData.shouldBeFireDamage(itemStack));
@@ -119,19 +121,21 @@ public class Gauntlet extends Item implements IVanishable {
                 watchEntity.watch(livingEntity);
             }
         }
-        worldIn.addEntity(watchEntity);
+        worldIn.addFreshEntity(watchEntity);
         if (SkillData.shouldApplySoftLanding(itemStack)) {
-            playerIn.addPotionEffect(new EffectInstance(EffectRegistry.SAFE_LANDING.get(), SkillData.getSoftLandingDefaultDuration(itemStack)));
+            playerIn.addEffect(new MobEffectInstance(MobEffectRegistry.SAFE_LANDING.get(), SkillData.getSoftLandingDefaultDuration(itemStack)));
         }
-        playerIn.getCooldownTracker().setCooldown(this, SkillData.getRisingUppercutCooldown(itemStack));
+        playerIn.getCooldowns().addCooldown(this, SkillData.getRisingUppercutCooldown(itemStack));
     }
 
+    @Override
     public int getUseDuration(ItemStack stack) {
         return 72000;
     }
 
-    public UseAction getUseAction(ItemStack stack) {
-        return UseAction.BOW;
+    @Override
+    public UseAnim getUseAnimation(ItemStack stack) {
+        return UseAnim.BOW;
     }
 
     static class SkillData {

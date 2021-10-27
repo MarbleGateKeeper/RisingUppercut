@@ -1,18 +1,18 @@
 package love.marblegate.risinguppercut.misc;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.entity.LivingEntity;
 
 public class RotationUtil {
+    // TODO Need Test it was yRot
     public static double getHorizentalLookVecX(LivingEntity entity) {
-        float yaw = entity.rotationYaw;
+        float yaw = entity.yRotO;
         float f1 = -yaw * ((float) Math.PI / 180F);
-        return MathHelper.sin(f1);
+        return Math.sin(f1);
     }
 
     public static double getHorizentalLookVecZ(LivingEntity entity) {
-        float yaw = entity.rotationYaw;
+        float yaw = entity.yRotO;
         float f1 = -yaw * ((float) Math.PI / 180F);
-        return MathHelper.cos(f1);
+        return Math.cos(f1);
     }
 }

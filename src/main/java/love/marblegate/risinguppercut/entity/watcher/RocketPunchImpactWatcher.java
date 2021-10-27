@@ -2,26 +2,26 @@ package love.marblegate.risinguppercut.entity.watcher;
 
 import love.marblegate.risinguppercut.damagesource.RocketPunchOnWallDamageSource;
 import love.marblegate.risinguppercut.registry.EntityRegistry;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.IPacket;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraftforge.fmllegacy.network.NetworkHooks;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class RocketPunchImpactWatcher extends Entity {
-    static final DataParameter<Integer> TIMER = EntityDataManager.createKey(RocketPunchImpactWatcher.class, DataSerializers.VARINT);
+    static final EntityDataAccessor<Integer> TIMER = SynchedEntityData.defineId(RocketPunchImpactWatcher.class, EntityDataSerializers.INT);
     int effectiveChargeTime;
     double knockbackSpeedIndex;
     float damagePerEffectiveCharge;
@@ -30,18 +30,18 @@ public class RocketPunchImpactWatcher extends Entity {
     boolean ignoreArmor;
     boolean healing;
     boolean isFireDamage;
-    PlayerEntity source;
+    Player source;
     List<YUnchangedLivingEntity> watchedEntities;
 
 
-    public RocketPunchImpactWatcher(EntityType<? extends RocketPunchImpactWatcher> entityTypeIn, World worldIn) {
-        super(entityTypeIn, worldIn);
+    public RocketPunchImpactWatcher(EntityType<? extends RocketPunchImpactWatcher> entityTypeIn, Level level) {
+        super(entityTypeIn, level);
     }
 
-    public RocketPunchImpactWatcher(World worldIn, BlockPos pos, int timer, int effectiveChargeTime, double knockbackSpeedIndex, float damagePerEffectiveCharge, double dx, double dz, boolean ignoreArmor, boolean healing, boolean isFireDamage, PlayerEntity source) {
-        super(EntityRegistry.ROCKET_PUNCH_IMPACT_WATCHER.get(), worldIn);
-        setPosition(pos.getX(), pos.getY(), pos.getZ());
-        dataManager.set(TIMER, timer);
+    public RocketPunchImpactWatcher(Level level, BlockPos pos, int timer, int effectiveChargeTime, double knockbackSpeedIndex, float damagePerEffectiveCharge, double dx, double dz, boolean ignoreArmor, boolean healing, boolean isFireDamage, Player source) {
+        super(EntityRegistry.ROCKET_PUNCH_IMPACT_WATCHER.get(), level);
+        setPos(pos.getX(), pos.getY(), pos.getZ());
+        entityData.set(TIMER, timer);
         this.effectiveChargeTime = effectiveChargeTime;
         this.knockbackSpeedIndex = knockbackSpeedIndex;
         this.damagePerEffectiveCharge = damagePerEffectiveCharge;
@@ -70,27 +70,27 @@ public class RocketPunchImpactWatcher extends Entity {
     @Override
     public void tick() {
         super.tick();
-        if (!world.isRemote()) {
-            int temp = dataManager.get(TIMER);
+        if (!level.isClientSide()) {
+            int temp = entityData.get(TIMER);
             if (watchedEntities != null && source != null) {
                 if (!watchedEntities.isEmpty()) {
                     List<YUnchangedLivingEntity> entitiesRemoveFromWatchList = new ArrayList<>();
                     for (YUnchangedLivingEntity entity : watchedEntities) {
-                        if (entity.livingEntity.collidedHorizontally) {
+                        if (entity.livingEntity.horizontalCollision) {
                             DamageSource damageSource = new RocketPunchOnWallDamageSource(source);
                             float realDamageApplied = damagePerEffectiveCharge * effectiveChargeTime + 1;
                             if (effectiveChargeTime - temp < 10) realDamageApplied = realDamageApplied * 2 - 1;
                             {
                                 if (ignoreArmor) {
-                                    damageSource.setDamageBypassesArmor();
-                                    entity.livingEntity.attackEntityFrom(damageSource, realDamageApplied);
+                                    damageSource.bypassArmor();
+                                    entity.livingEntity.hurt(damageSource, realDamageApplied);
                                 } else if (isFireDamage) {
-                                    damageSource.setFireDamage();
-                                    entity.livingEntity.attackEntityFrom(damageSource, realDamageApplied);
+                                    damageSource.setIsFire();
+                                    entity.livingEntity.hurt(damageSource, realDamageApplied);
                                 } else if (healing) {
                                     entity.livingEntity.heal(damagePerEffectiveCharge);
                                 } else {
-                                    entity.livingEntity.attackEntityFrom(damageSource, realDamageApplied);
+                                    entity.livingEntity.hurt(damageSource, realDamageApplied);
                                 }
                             }
                             entitiesRemoveFromWatchList.add(entity);
@@ -103,40 +103,42 @@ public class RocketPunchImpactWatcher extends Entity {
                     }
                     if (temp - 1 == 0) {
                         watchedEntities.clear();
-                        remove();
-                    } else dataManager.set(TIMER, temp - 1);
+                        remove(RemovalReason.DISCARDED);
+                    } else entityData.set(TIMER, temp - 1);
                 } else {
-                    if (temp - 1 == 0) remove();
-                    else dataManager.set(TIMER, temp - 1);
+                    if (temp - 1 == 0) remove(RemovalReason.DISCARDED);
+                    else entityData.set(TIMER, temp - 1);
                 }
             } else {
-                remove();
+                remove(RemovalReason.DISCARDED);
             }
         }
     }
 
     @Override
-    public boolean hasNoGravity() {
+    public boolean isNoGravity() {
         return true;
     }
 
-
     @Override
-    protected void registerData() {
-        dataManager.register(TIMER, 0);
-    }
-
-    @Override
-    protected void readAdditional(CompoundNBT compound) {
+    protected void readAdditionalSaveData(CompoundTag p_20052_) {
         source = null;
     }
 
     @Override
-    protected void writeAdditional(CompoundNBT compound) {
+    protected void addAdditionalSaveData(CompoundTag p_20139_) {
+
     }
 
+
     @Override
-    public IPacket<?> createSpawnPacket() {
+    protected void defineSynchedData() {
+        entityData.define(TIMER, 0);
+    }
+
+
+    @Override
+    public Packet<?> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 
@@ -146,14 +148,13 @@ public class RocketPunchImpactWatcher extends Entity {
 
         public YUnchangedLivingEntity(LivingEntity livingEntity) {
             this.livingEntity = livingEntity;
-            Y = livingEntity.getPosY();
+            Y = livingEntity.getY();
         }
 
         void setMotion(double X, double Z) {
-            livingEntity.setMotion(X, 0, Z);
-            livingEntity.setPosition(livingEntity.getPosX(), Y, livingEntity.getPosZ());
-            livingEntity.markPositionDirty();
-            livingEntity.velocityChanged = true;
+            livingEntity.setDeltaMovement(X, 0, Z);
+            livingEntity.setPos(livingEntity.getX(), Y, livingEntity.getZ());
+            livingEntity.hurtMarked = true;
         }
 
     }

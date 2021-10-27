@@ -3,25 +3,26 @@ package love.marblegate.risinguppercut.entity.watcher;
 import love.marblegate.risinguppercut.damagesource.RocketPunchDamageSource;
 import love.marblegate.risinguppercut.misc.LootUtil;
 import love.marblegate.risinguppercut.registry.EntityRegistry;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.IPacket;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraftforge.fmllegacy.network.NetworkHooks;
+
 
 import java.util.List;
 
 public class RocketPunchProcessWatcher extends Entity {
-    static final DataParameter<Integer> TIMER = EntityDataManager.createKey(RocketPunchProcessWatcher.class, DataSerializers.VARINT);
+    static final EntityDataAccessor<Integer> TIMER = SynchedEntityData.defineId(RocketPunchProcessWatcher.class, EntityDataSerializers.INT);
     int effectiveChargeTime;
     double dx;
     double dz;
@@ -32,18 +33,18 @@ public class RocketPunchProcessWatcher extends Entity {
     boolean healing;
     boolean isFireDamage;
     int shouldLoot;
-    PlayerEntity source;
+    Player source;
     boolean stopTracking = false;
 
 
-    public RocketPunchProcessWatcher(EntityType<? extends RocketPunchProcessWatcher> entityTypeIn, World worldIn) {
-        super(entityTypeIn, worldIn);
+    public RocketPunchProcessWatcher(EntityType<? extends RocketPunchProcessWatcher> entityTypeIn, Level level) {
+        super(entityTypeIn, level);
     }
 
-    public RocketPunchProcessWatcher(World worldIn, BlockPos pos, int effectiveChargeTime, double knockbackSpeedIndex, double speedIndex, float damagePerEffectiveCharge, double dx, double dz, boolean ignoreArmor, boolean healing, boolean isFireDamage, PlayerEntity source, int shouldLoot) {
-        super(EntityRegistry.ROCKET_PUNCH_IMPACT_WATCHER.get(), worldIn);
-        setPosition(pos.getX(), pos.getY(), pos.getZ());
-        dataManager.set(TIMER, effectiveChargeTime);
+    public RocketPunchProcessWatcher(Level level, BlockPos pos, int effectiveChargeTime, double knockbackSpeedIndex, double speedIndex, float damagePerEffectiveCharge, double dx, double dz, boolean ignoreArmor, boolean healing, boolean isFireDamage, Player source, int shouldLoot) {
+        super(EntityRegistry.ROCKET_PUNCH_IMPACT_WATCHER.get(), level);
+        setPos(pos.getX(), pos.getY(), pos.getZ());
+        entityData.set(TIMER, effectiveChargeTime);
         this.effectiveChargeTime = effectiveChargeTime;
         this.knockbackSpeedIndex = knockbackSpeedIndex;
         this.damagePerEffectiveCharge = damagePerEffectiveCharge;
@@ -60,102 +61,101 @@ public class RocketPunchProcessWatcher extends Entity {
     @Override
     public void tick() {
         super.tick();
-        if (!world.isRemote()) {
-            int temp = dataManager.get(TIMER);
+        if (!level.isClientSide()) {
+            int temp = entityData.get(TIMER);
 
             //Deal with rocket punch is valid
             if (temp > 0 && !stopTracking && source != null) {
                 //Slightly enlarge player's hitbox
-                AxisAlignedBB collideBox = source.getBoundingBox().grow(0.5f, 0, 0.5f);
+                AABB collideBox = source.getBoundingBox().inflate(0.5f, 0, 0.5f);
 
                 //Collision Detection
-                List<LivingEntity> checks = world.getEntitiesWithinAABB(LivingEntity.class, collideBox);
+                List<LivingEntity> checks = level.getEntitiesOfClass(LivingEntity.class, collideBox);
                 checks.remove(source);
 
                 //If any mob is detected
                 if (!checks.isEmpty()) {
                     // spawn an watchEntity to simulate rocket punch effect
-                    RocketPunchImpactWatcher watchEntity = new RocketPunchImpactWatcher(world, source.getPosition(), temp, effectiveChargeTime,
+                    RocketPunchImpactWatcher watchEntity = new RocketPunchImpactWatcher(level, source.blockPosition(), temp, effectiveChargeTime,
                             knockbackSpeedIndex, damagePerEffectiveCharge, dx, dz,
                             ignoreArmor, healing, isFireDamage, source);
                     for (LivingEntity target : checks) {
                         // Deal damage
                         DamageSource damageSource = new RocketPunchDamageSource(source);
                         if (shouldLoot > 0) {
-                            LootUtil.dropLoot(target, DamageSource.causePlayerDamage(source), true, source);
+                            LootUtil.dropLoot(target, DamageSource.playerAttack(source), true, source);
                         }
                         if (isFireDamage) {
-                            damageSource.setFireDamage();
-                            target.setFire(3);
-                            target.attackEntityFrom(damageSource, damagePerEffectiveCharge * effectiveChargeTime);
+                            damageSource.setIsFire();
+                            target.setSecondsOnFire(3);
+                            target.hurt(damageSource, damagePerEffectiveCharge * effectiveChargeTime);
                         } else if (ignoreArmor) {
-                            damageSource.setDamageBypassesArmor();
-                            target.attackEntityFrom(damageSource, damagePerEffectiveCharge * effectiveChargeTime);
+                            damageSource.bypassArmor();
+                            target.hurt(damageSource, damagePerEffectiveCharge * effectiveChargeTime);
                         } else if (healing) {
                             target.heal(damagePerEffectiveCharge * effectiveChargeTime);
                         } else {
-                            target.attackEntityFrom(damageSource, damagePerEffectiveCharge * effectiveChargeTime);
+                            target.hurt(damageSource, damagePerEffectiveCharge * effectiveChargeTime);
                         }
 
                         if (target.isAlive()) {
                             watchEntity.watch(target);
                         }
                     }
-                    source.world.addEntity(watchEntity);
+                    source.level.addFreshEntity(watchEntity);
 
                     // Player stop moving and clear pocket punch status
-                    source.setMotion(0, 0, 0);
-                    source.markPositionDirty();
-                    source.velocityChanged = true;
+                    source.setDeltaMovement(0, 0, 0);
+                    source.hurtMarked = true;
                     stopTracking = true;
                 }
 
                 // If rocket punch is active and player hit a wall
                 // stop player and clear rocket punch status
-                if (source.collidedHorizontally && !stopTracking) {
-                    source.setMotion(0, 0, 0);
-                    source.markPositionDirty();
-                    source.velocityChanged = true;
+                if (source.horizontalCollision && !stopTracking) {
+                    source.setDeltaMovement(0, 0, 0);
+                    source.hurtMarked = true;
                     stopTracking = true;
                 }
 
                 // Deal with player rocket punch movement
                 if (!stopTracking) {
                     // lock moving direction
-                    source.setMotion(dx * speedIndex, 0.1, dz * speedIndex);
-                    source.markPositionDirty();
-                    source.velocityChanged = true;
-                    dataManager.set(TIMER, temp - 1);
+                    source.setDeltaMovement(dx * speedIndex, 0.1, dz * speedIndex);
+                    source.hurtMarked = true;
+                    entityData.set(TIMER, temp - 1);
                 }
             }
 
             if (stopTracking || source == null || temp == 0) {
-                remove();
+                remove(RemovalReason.DISCARDED);
             }
         }
     }
 
     @Override
-    public boolean hasNoGravity() {
+    public boolean isNoGravity() {
         return true;
     }
 
     @Override
-    protected void registerData() {
-        dataManager.register(TIMER, 0);
-    }
-
-    @Override
-    protected void readAdditional(CompoundNBT compound) {
+    protected void readAdditionalSaveData(CompoundTag p_20052_) {
         source = null;
     }
 
     @Override
-    protected void writeAdditional(CompoundNBT compound) {
+    protected void addAdditionalSaveData(CompoundTag p_20139_) {
+
     }
 
     @Override
-    public IPacket<?> createSpawnPacket() {
+    protected void defineSynchedData() {
+        entityData.define(TIMER, 0);
+    }
+
+
+    @Override
+    public Packet<?> getAddEntityPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
     }
 

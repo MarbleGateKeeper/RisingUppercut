@@ -1,29 +1,29 @@
 package love.marblegate.risinguppercut.misc;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.loot.LootContext;
-import net.minecraft.loot.LootParameterSets;
-import net.minecraft.loot.LootParameters;
-import net.minecraft.loot.LootTable;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 
 //TODO I believe we need something more reliable and predictable
 public class LootUtil {
-    public static void dropLoot(LivingEntity livingEntity, DamageSource damageSourceIn, boolean attackedRecently, PlayerEntity playerEntity) {
-        ResourceLocation resourcelocation = livingEntity.getLootTableResourceLocation();
-        LootTable loottable = livingEntity.world.getServer().getLootTableManager().getLootTableFromLocation(resourcelocation);
-        LootContext.Builder lootcontext$builder = getLootContextBuilder(livingEntity, attackedRecently, damageSourceIn, playerEntity);
-        LootContext ctx = lootcontext$builder.build(LootParameterSets.ENTITY);
-        loottable.generate(ctx).forEach(livingEntity::entityDropItem);
+    public static void dropLoot(LivingEntity livingEntity, DamageSource damageSourceIn, boolean attackedRecently, Player player) {
+        ResourceLocation resourcelocation = livingEntity.getLootTable();
+        LootTable loottable = livingEntity.level.getServer().getLootTables().get(resourcelocation);
+        LootContext.Builder lootcontext$builder = getLootContextBuilder(livingEntity, attackedRecently, damageSourceIn, player);
+        LootContext ctx = lootcontext$builder.create(LootContextParamSets.ENTITY);
+        loottable.getRandomItems(ctx).forEach(livingEntity::spawnAtLocation);
     }
 
-    public static LootContext.Builder getLootContextBuilder(LivingEntity livingEntity, boolean attackedRecently, DamageSource damageSourceIn, PlayerEntity playerEntity) {
-        LootContext.Builder lootcontext$builder = (new LootContext.Builder((ServerWorld) livingEntity.world)).withRandom(livingEntity.getRNG()).withParameter(LootParameters.THIS_ENTITY, livingEntity).withParameter(LootParameters.ORIGIN, livingEntity.getPositionVec()).withParameter(LootParameters.DAMAGE_SOURCE, damageSourceIn).withNullableParameter(LootParameters.KILLER_ENTITY, damageSourceIn.getTrueSource()).withNullableParameter(LootParameters.DIRECT_KILLER_ENTITY, damageSourceIn.getImmediateSource());
-        if (attackedRecently && playerEntity != null) {
-            lootcontext$builder = lootcontext$builder.withParameter(LootParameters.LAST_DAMAGE_PLAYER, playerEntity).withLuck(playerEntity.getLuck());
+    public static LootContext.Builder getLootContextBuilder(LivingEntity livingEntity, boolean attackedRecently, DamageSource damageSourceIn, Player player) {
+        LootContext.Builder lootcontext$builder = (new LootContext.Builder((ServerLevel) livingEntity.level)).withRandom(livingEntity.getRandom()).withParameter(LootContextParams.THIS_ENTITY, livingEntity).withParameter(LootContextParams.ORIGIN, livingEntity.position()).withParameter(LootContextParams.DAMAGE_SOURCE, damageSourceIn).withOptionalParameter(LootContextParams.KILLER_ENTITY, damageSourceIn.getEntity()).withOptionalParameter(LootContextParams.DIRECT_KILLER_ENTITY, damageSourceIn.getDirectEntity());
+        if (attackedRecently && player != null) {
+            lootcontext$builder = lootcontext$builder.withParameter(LootContextParams.LAST_DAMAGE_PLAYER, player).withLuck(player.getLuck());
         }
         return lootcontext$builder;
     }
