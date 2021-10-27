@@ -12,6 +12,7 @@ public class RendererRegistry {
     @SubscribeEvent
     public static void onClientSetUpEvent(FMLClientSetupEvent event) {
         RenderingRegistry.registerEntityRenderingHandler(EntityRegistry.ROCKET_PUNCH_IMPACT_WATCHER.get(), BlankRender::new);
+        RenderingRegistry.registerEntityRenderingHandler(EntityRegistry.ROCKET_PUNCH_PROCESS_WATCHER.get(), BlankRender::new);
         RenderingRegistry.registerEntityRenderingHandler(EntityRegistry.RISING_UPPERCUT_WATCHER.get(), BlankRender::new);
     }
 }
