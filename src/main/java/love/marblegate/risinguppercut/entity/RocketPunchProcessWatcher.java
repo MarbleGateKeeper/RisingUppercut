@@ -1,4 +1,4 @@
-package love.marblegate.risinguppercut.entity.watcher;
+package love.marblegate.risinguppercut.entity;
 
 import love.marblegate.risinguppercut.damagesource.RocketPunchDamageSource;
 import love.marblegate.risinguppercut.misc.LootUtil;

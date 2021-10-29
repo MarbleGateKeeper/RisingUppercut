@@ -1,4 +1,4 @@
-package love.marblegate.risinguppercut.entity.watcher;
+package love.marblegate.risinguppercut.entity;
 
 import love.marblegate.risinguppercut.damagesource.RisingUppercutDamageSource;
 import love.marblegate.risinguppercut.registry.EntityRegistry;
@@ -139,11 +139,6 @@ public class RisingUppercutWatcher extends Entity {
         entityData.define(TIMER, 0);
     }
 
-
-    @Override
-    public float getPickRadius() {
-        return super.getPickRadius();
-    }
 
 
     @Override

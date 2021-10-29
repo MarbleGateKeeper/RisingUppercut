@@ -1,7 +1,7 @@
 package love.marblegate.risinguppercut.item;
 
-import love.marblegate.risinguppercut.entity.watcher.RisingUppercutWatcher;
-import love.marblegate.risinguppercut.entity.watcher.RocketPunchProcessWatcher;
+import love.marblegate.risinguppercut.entity.RisingUppercutWatcher;
+import love.marblegate.risinguppercut.entity.RocketPunchProcessWatcher;
 import love.marblegate.risinguppercut.misc.Configuration;
 import love.marblegate.risinguppercut.misc.ModCreativeTab;
 import love.marblegate.risinguppercut.misc.RotationUtil;

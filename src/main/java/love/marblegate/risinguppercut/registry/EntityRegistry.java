@@ -1,8 +1,8 @@
 package love.marblegate.risinguppercut.registry;
 
-import love.marblegate.risinguppercut.entity.watcher.RisingUppercutWatcher;
-import love.marblegate.risinguppercut.entity.watcher.RocketPunchImpactWatcher;
-import love.marblegate.risinguppercut.entity.watcher.RocketPunchProcessWatcher;
+import love.marblegate.risinguppercut.entity.RisingUppercutWatcher;
+import love.marblegate.risinguppercut.entity.RocketPunchImpactWatcher;
+import love.marblegate.risinguppercut.entity.RocketPunchProcessWatcher;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraftforge.fmllegacy.RegistryObject;
