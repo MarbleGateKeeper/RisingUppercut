@@ -3,7 +3,7 @@ package love.marblegate.risinguppercut.registry;
 import love.marblegate.risinguppercut.item.BaseComponent;
 import love.marblegate.risinguppercut.item.Gauntlet;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.fmllegacy.RegistryObject;
+import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 

@@ -2,7 +2,7 @@ package love.marblegate.risinguppercut.registry;
 
 import love.marblegate.risinguppercut.effect.SafeLanding;
 import net.minecraft.world.effect.MobEffect;
-import net.minecraftforge.fmllegacy.RegistryObject;
+import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
